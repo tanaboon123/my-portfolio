@@ -1,9 +1,26 @@
-body {
-  font-family: sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  padding: 40px;
+.page {
+  display: none;
+  padding: 20px;
 }
-h1 {
-  color: #007acc;
+.page.active {
+  display: block;
+}
+
+nav {
+  margin-bottom: 20px;
+}
+
+button {
+  margin-right: 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+  background-color: #007acc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #005f99;
 }
