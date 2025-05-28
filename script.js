@@ -13,4 +13,3 @@ btnPortfolio.addEventListener('click', () => {
   portfolioPage.classList.add('active');
   homePage.classList.remove('active');
 });
-
