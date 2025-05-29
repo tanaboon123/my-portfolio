@@ -220,7 +220,82 @@
   <button onclick="resetGame()">เริ่มเกมใหม่</button>
   <div id="log"></div>
   <script>
-    // JavaScript ยังใช้เหมือนเดิมตามโค้ดใน Canvas
+    let spinCount = 0;
+    const maxSpins = 100;
+    const rotator = document.getElementById("rotator");
+    const powerBar = document.getElementById("powerFill");
+    const board = document.getElementById("board");
+    const log = document.getElementById("log");
+
+    function logMessage(msg) {
+      const p = document.createElement("div");
+      p.textContent = msg;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function launchBall(power) {
+      if (spinCount >= maxSpins) {
+        logMessage("เกมจบแล้ว! คุณใช้ครบ 100 ครั้ง");
+        return;
+      }
+      spinCount++;
+      const ball = document.createElement("div");
+      ball.className = "ball";
+      ball.style.left = (Math.random() * 350 + 25) + "px";
+      ball.style.top = "200px";
+      board.appendChild(ball);
+      logMessage(`หมุนที่พลังงาน: ${power.toFixed(2)} (${spinCount}/100)`);
+
+      let distance = 0;
+      const fallInterval = setInterval(() => {
+        if (distance >= 350) {
+          clearInterval(fallInterval);
+          board.removeChild(ball);
+
+          // สุ่มผลลัพธ์
+          const success = Math.random() < power;
+          if (success) {
+            const jackpot = Math.random() < 0.1;
+            if (jackpot) {
+              logMessage("🎉 แจ็คพอต! ลูกบอลลงหลุมทอง!");
+            } else {
+              logMessage("✅ ลูกบอลตกลงหลุมรางวัล!");
+            }
+          } else {
+            logMessage("❌ ลูกบอลพลาดเป้า!");
+          }
+        } else {
+          distance += 5 + power * 10;
+          ball.style.top = parseInt(ball.style.top) + (5 + power * 10) + "px";
+        }
+      }, 30);
+    }
+
+    let power = 0;
+    let powerDirection = 1;
+    let charging = setInterval(() => {
+      power += 0.01 * powerDirection;
+      if (power >= 1) {
+        power = 1;
+        powerDirection = -1;
+      } else if (power <= 0) {
+        power = 0;
+        powerDirection = 1;
+      }
+      powerBar.style.width = (power * 100) + "%";
+    }, 20);
+
+    rotator.addEventListener("click", () => {
+      launchBall(power);
+    });
+
+    function resetGame() {
+      spinCount = 0;
+      log.innerHTML = "";
+      logMessage("เริ่มเกมใหม่แล้ว!");
+    }
   </script>
 </body>
 </html>
+
