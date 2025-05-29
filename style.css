@@ -1,8 +1,13 @@
-body {
+/* ทำให้ HTML และ BODY กินพื้นที่เต็มหน้าจอ และพื้นหลังสีม่วง */
+html, body {
   margin: 0;
+  padding: 0;
+  height: 100%;
   font-family: 'Tahoma', sans-serif;
+  background-color: #f3e5f5; /* สีม่วงอ่อน */
 }
 
+/* เมนู */
 nav {
   background-color: #222;
   padding: 15px;
@@ -10,7 +15,7 @@ nav {
 }
 
 nav button {
-  font-size: 1.2rem;           /* ขนาดพอดี */
+  font-size: 1.2rem;
   padding: 10px 20px;
   margin: 8px;
   border: none;
@@ -25,18 +30,21 @@ nav button:hover {
   background-color: #5e35b1;
 }
 
+/* หน้าแต่ละหน้า */
 .page {
   display: none;
   padding: 30px;
+  min-height: calc(100vh - 70px); /* ลบความสูงของเมนู */
+  box-sizing: border-box;
 }
 
+/* หน้าเปิดอยู่ */
 .page.active {
   display: block;
 }
 
+/* โลโก้หน้าแรก */
 #home-page {
-  background-color: #f3e5f5; /* สีม่วงอ่อน */
-  min-height: 100vh;
   text-align: center;
   padding-top: 80px;
 }
@@ -56,4 +64,5 @@ nav button:hover {
   font-weight: bold;
   color: yellow;
 }
+
 
