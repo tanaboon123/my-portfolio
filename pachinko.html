@@ -45,13 +45,13 @@
       position: absolute;
       bottom: 20px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-50%) rotate(0deg);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.5s ease;
       border: 6px solid #e65100;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      cursor: grab;
     }
 
     .rotator::after {
@@ -91,14 +91,12 @@
       left: 0;
       top: 0;
       height: 100%;
-      clip-path: polygon(0 100%, 100% 0, 100% 100%);
     }
 
     .track.right {
       right: 0;
       top: 0;
       height: 100%;
-      clip-path: polygon(0 0, 100% 100%, 0 100%);
     }
 
     .reward-slot {
@@ -172,12 +170,22 @@
       overflow-y: scroll;
       font-size: 14px;
     }
+
+    .ball-path {
+      position: absolute;
+      width: 20px;
+      height: 100%;
+      background-color: #d7ccc8;
+      left: 0;
+      z-index: 0;
+    }
   </style>
 </head>
 <body>
   <h1>🎰 เกมปาจิงโกะสมจริง 🎉</h1>
   <div id="powerBar"><div id="powerFill"></div></div>
   <div id="board">
+    <div class="ball-path"></div>
     <div class="track left"></div>
     <div class="track right"></div>
     <div class="entry-path">
@@ -188,7 +196,7 @@
       <div class="hole" data-index="4"></div>
       <div class="hole" data-index="5"></div>
     </div>
-    <div class="rotator" id="rotator" onclick="spin()"></div>
+    <div class="rotator" id="rotator"></div>
     <div id="reward-slot" class="reward-slot" style="bottom: 200px;"></div>
     <div id="jackpot-slot" class="reward-slot jackpot-slot" style="bottom: 240px;"></div>
     <div id="slot-machine">
@@ -200,100 +208,143 @@
   <button onclick="resetGame()">เริ่มเกมใหม่</button>
   <div id="log"></div>
   <script>
-    let round = 0;
-    let maxRounds = 100;
-    let score = 0;
-    let rotator = document.getElementById("rotator");
-    let powerBar = document.getElementById("powerFill");
+    document.addEventListener("DOMContentLoaded", function () {
+      let round = 0;
+      let maxRounds = 100;
+      let score = 0;
+      let isDragging = false;
+      let dragPower = 0;
+      let powerDirection = 1;
 
-    function log(msg) {
-      const logBox = document.getElementById("log");
-      logBox.innerHTML += msg + "<br>";
-      logBox.scrollTop = logBox.scrollHeight;
-    }
+      const rotator = document.getElementById("rotator");
+      const powerBar = document.getElementById("powerFill");
 
-    function resetGame() {
-      round = 0;
-      score = 0;
-      document.getElementById("log").innerHTML = "เริ่มเกมใหม่แล้ว<br>";
-      document.getElementById("slot1").innerText = "-";
-      document.getElementById("slot2").innerText = "-";
-      document.getElementById("slot3").innerText = "-";
-    }
-
-    function spin() {
-      if (round >= maxRounds) {
-        alert("เกมจบแล้ว คุณทำได้ " + score + " แต้ม");
-        return;
+      function animatePowerBar() {
+        if (isDragging) {
+          dragPower += 0.02 * powerDirection;
+          if (dragPower >= 1) {
+            dragPower = 1;
+            powerDirection = -1;
+          } else if (dragPower <= 0) {
+            dragPower = 0;
+            powerDirection = 1;
+          }
+          powerBar.style.width = dragPower * 100 + "%";
+          rotator.style.transform = `translateX(-50%) rotate(${dragPower * 360}deg)`;
+          requestAnimationFrame(animatePowerBar);
+        }
       }
 
-      round++;
-      let power = Math.random();
-      let angle = 360 + power * 360;
-      powerBar.style.width = (power * 100) + "%";
-      rotator.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+      rotator.addEventListener("mousedown", () => {
+        isDragging = true;
+        dragPower = 0;
+        powerDirection = 1;
+        animatePowerBar();
+      });
 
-      const ball = document.createElement("div");
-      ball.classList.add("ball");
-      document.getElementById("board").appendChild(ball);
+      window.addEventListener("mouseup", () => {
+        if (!isDragging) return;
+        isDragging = false;
 
-      let x = power < 0.5 ? 10 : 380;
-      let y = 580;
-      let vx = power < 0.5 ? 2 : -2;
-      let vy = -power * 25;
+        let angle = dragPower * 360;
+        let spinVelocity = dragPower * 20;
 
-      let prevY = y;
-      const interval = setInterval(() => {
-        vy += 0.4;
-        x += vx;
-        y += vy;
+        function animateRotation() {
+          angle += spinVelocity;
+          spinVelocity *= 0.95;
+          rotator.style.transform = `translateX(-50%) rotate(${angle}deg)`;
 
-        if (x < 0 || x > 385) vx *= -1;
+          if (spinVelocity > 0.1) {
+            requestAnimationFrame(animateRotation);
+          } else {
+            rotator.style.transform = `translateX(-50%) rotate(0deg)`;
+          }
+        }
 
-        ball.style.left = x + "px";
-        ball.style.top = y + "px";
+        animateRotation();
+        powerBar.style.width = "0%";
+        spin(dragPower);
+        dragPower = 0;
+      });
 
-        if (prevY > 20 && y <= 20) {
-          const holeIndex = Math.floor(x / 66);
-          clearInterval(interval);
-          document.getElementById("board").removeChild(ball);
-          handleHole(holeIndex);
-        } else if (y > 600) {
-          clearInterval(interval);
-          document.getElementById("board").removeChild(ball);
+      function log(msg) {
+        const logBox = document.getElementById("log");
+        logBox.innerHTML += msg + "<br>";
+        logBox.scrollTop = logBox.scrollHeight;
+      }
+
+      window.resetGame = function () {
+        round = 0;
+        score = 0;
+        document.getElementById("log").innerHTML = "เริ่มเกมใหม่แล้ว<br>";
+        document.getElementById("slot1").innerText = "-";
+        document.getElementById("slot2").innerText = "-";
+        document.getElementById("slot3").innerText = "-";
+      }
+
+      function spin(power) {
+        if (round >= maxRounds) {
+          alert("เกมจบแล้ว คุณทำได้ " + score + " แต้ม");
+          return;
+        }
+
+        round++;
+        const ball = document.createElement("div");
+        ball.classList.add("ball");
+        document.getElementById("board").appendChild(ball);
+
+        let x = 10;
+        let y = 580;
+        let vx = 0;
+        let vy = -power * 25;
+
+        const interval = setInterval(() => {
+          vy += 0.4;
+          y += vy;
+
+          ball.style.left = x + "px";
+          ball.style.top = y + "px";
+
+          if (y <= 20) {
+            const holeIndex = Math.floor((x / 400) * 6);
+            clearInterval(interval);
+            if (ball.parentNode) ball.parentNode.removeChild(ball);
+            handleHole(holeIndex);
+          } else if (y > 600) {
+            clearInterval(interval);
+            if (ball.parentNode) ball.parentNode.removeChild(ball);
+            log(`รอบ ${round}: พลาด ไม่ได้คะแนน`);
+          }
+        }, 30);
+      }
+
+      function handleHole(index) {
+        if (index === 2 || index === 4) {
+          const isJackpot = index === 4;
+          const symbols = ["🍒", "7", "⭐"];
+          const result = [
+            symbols[Math.floor(Math.random() * symbols.length)],
+            symbols[Math.floor(Math.random() * symbols.length)],
+            symbols[Math.floor(Math.random() * symbols.length)]
+          ];
+          document.getElementById("slot1").innerText = result[0];
+          document.getElementById("slot2").innerText = result[1];
+          document.getElementById("slot3").innerText = result[2];
+
+          let gained = 0;
+          if (result[0] === result[1] && result[1] === result[2]) gained = 200;
+          else if (result[0] === result[1] || result[1] === result[2]) gained = 50;
+
+          if (isJackpot) gained *= 8;
+          score += gained;
+
+          log(`รอบ ${round}: ลง${isJackpot ? "รูแจ็กพอต" : "รูรางวัลธรรมดา"}, ได้ ${gained} แต้ม, รวม ${score}`);
+        } else {
           log(`รอบ ${round}: พลาด ไม่ได้คะแนน`);
         }
-        prevY = y;
-      }, 30);
-    }
-
-    function handleHole(index) {
-      if (index === 2 || index === 4) {
-        const isJackpot = index === 4;
-        const symbols = ["🍒", "7", "⭐"];
-        const result = [
-          symbols[Math.floor(Math.random() * symbols.length)],
-          symbols[Math.floor(Math.random() * symbols.length)],
-          symbols[Math.floor(Math.random() * symbols.length)]
-        ];
-        document.getElementById("slot1").innerText = result[0];
-        document.getElementById("slot2").innerText = result[1];
-        document.getElementById("slot3").innerText = result[2];
-
-        let gained = 0;
-        if (result[0] === result[1] && result[1] === result[2]) gained = 200;
-        else if (result[0] === result[1] || result[1] === result[2]) gained = 50;
-
-        if (isJackpot) gained *= 8;
-        score += gained;
-
-        log(`รอบ ${round}: ลง${isJackpot ? "รูแจ็กพอต" : "รูรางวัลธรรมดา"}, ได้ ${gained} แต้ม, รวม ${score}`);
-      } else {
-        log(`รอบ ${round}: พลาด ไม่ได้คะแนน`);
       }
-    }
+    });
   </script>
 </body>
 </html>
-
 
