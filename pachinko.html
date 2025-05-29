@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>เกมปาจิงโกะ</title>
+  <title>เกมปาจิงโกะ + สล็อต</title>
   <style>
     body {
       margin: 0;
@@ -34,6 +34,41 @@
       background-color: red;
       border-radius: 50%;
       position: absolute;
+      z-index: 10;
+    }
+
+    /* ช่องรับบอล (slot holes) */
+    #slot-row {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background-color: #ffcc80;
+      border-top: 3px solid #ff9800;
+      box-sizing: border-box;
+    }
+
+    .slot-hole {
+      width: 50px;
+      height: 50px;
+      background-color: #fff8e1;
+      border: 2px solid #ff9800;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    /* ตัวเลขแต้มที่แสดงบนช่อง */
+    .score {
+      position: absolute;
+      top: 12px;
+      left: 0;
+      right: 0;
+      font-weight: bold;
+      font-size: 24px;
+      color: #e65100;
     }
 
     button {
@@ -44,6 +79,7 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      margin-top: 20px;
     }
 
     button:hover {
@@ -54,13 +90,24 @@
 <body>
   <h1>🎰 เกมปาจิงโกะ TT2 🎉</h1>
 
-  <div id="pachinko-board"></div>
+  <div id="pachinko-board">
+    <div id="slot-row">
+      <div class="slot-hole"><div class="score">-</div></div>
+      <div class="slot-hole"><div class="score">-</div></div>
+      <div class="slot-hole"><div class="score">-</div></div>
+      <div class="slot-hole"><div class="score">-</div></div>
+      <div class="slot-hole"><div class="score">-</div></div>
+    </div>
+  </div>
 
   <button onclick="dropBall()">โยนลูกบอล</button>
 
   <script>
+    const board = document.getElementById("pachinko-board");
+    const slotRow = document.getElementById("slot-row");
+    const slotHoles = slotRow.querySelectorAll(".slot-hole");
+
     function dropBall() {
-      const board = document.getElementById("pachinko-board");
       const ball = document.createElement("div");
       ball.classList.add("ball");
       ball.style.left = Math.random() * (board.clientWidth - 20) + "px";
@@ -71,9 +118,60 @@
       const fall = setInterval(() => {
         y += 5;
         ball.style.top = y + "px";
+
+        // ตรวจสอบว่าลูกบอลถึง slot-row (ช่องรับบอล) หรือยัง
+        const ballRect = ball.getBoundingClientRect();
+        const boardRect = board.getBoundingClientRect();
+        const slotRect = slotRow.getBoundingClientRect();
+
+        // ลูกบอลอยู่ในแนว slot-row แนวตั้ง และแนวนอนต้องอยู่ในช่องใดช่องหนึ่ง
+        if (ballRect.bottom >= slotRect.top) {
+          // หาตำแหน่งแนวนอนลูกบอลเทียบกับ slot holes
+          for (let i = 0; i < slotHoles.length; i++) {
+            const holeRect = slotHoles[i].getBoundingClientRect();
+            if (
+              ballRect.left + 10 > holeRect.left &&
+              ballRect.left + 10 < holeRect.right
+            ) {
+              clearInterval(fall);
+              ball.style.top = (slotRect.top - boardRect.top - 20) + "px";
+              ball.style.left = (holeRect.left - boardRect.left + 15) + "px";
+
+              // ทำให้บอลอยู่ในช่องนั้น
+              triggerSlotSpin(i);
+              return;
+            }
+          }
+          // ถ้าไม่ตกในช่องไหนเลย ก็หยุดบอลตรง slot-row
+          clearInterval(fall);
+          ball.style.top = (slotRect.top - boardRect.top - 20) + "px";
+          return;
+        }
+
+        // ถ้าลูกบอลตกเกินขอบล่าง (กันเหนียว)
         if (y > board.clientHeight - 20) clearInterval(fall);
       }, 20);
+    }
+
+    // ฟังก์ชันหมุนสล็อต (สุ่มแต้ม) และแสดงผลในช่องที่บอลตกลง
+    function triggerSlotSpin(index) {
+      const scoreDiv = slotHoles[index].querySelector(".score");
+      scoreDiv.textContent = "หมุน...";
+
+      let spins = 0;
+      const maxSpins = 15;
+      const spinInterval = setInterval(() => {
+        spins++;
+        const randomScore = Math.floor(Math.random() * 9) + 1; // แต้ม 1-9
+        scoreDiv.textContent = randomScore;
+
+        if (spins >= maxSpins) {
+          clearInterval(spinInterval);
+          scoreDiv.textContent = randomScore; // แสดงแต้มสุดท้าย
+        }
+      }, 100);
     }
   </script>
 </body>
 </html>
+
