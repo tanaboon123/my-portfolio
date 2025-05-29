@@ -75,7 +75,7 @@
 
     .entry-track {
       position: absolute;
-      bottom: 0;
+      top: 0; /* อยู่บนสุด */
       left: 10px;
       width: 20px;
       height: 180px;
@@ -86,7 +86,7 @@
 
     .track-top {
       position: absolute;
-      top: 400px;
+      top: 180px; /* ต่อจาก entry track */
       left: 15px;
       width: 310px;
       height: 20px;
@@ -213,24 +213,19 @@
       spinCount++;
       const ball = document.createElement("div");
       ball.className = "ball";
-      ball.style.left = "15px"; // จุดเริ่มต้นรางซ้าย
+      ball.style.left = "15px";
       ball.style.bottom = "0px";
       board.appendChild(ball);
       logMessage(`หมุนที่พลังงาน: ${power.toFixed(2)} (${spinCount}/100)`);
 
       let height = 0;
       let left = 15;
-      let phase = "up";
-
-      // ปรับความแรงเพิ่ม 15%
+      let velocity = 10; // ความเร็วเริ่มต้นตอนขึ้น
+      const gravity = 0.3;
       const adjustedPower = Math.min(power * 1.15, 1);
-
-      // ความสูงสุดที่ลูกบอลจะพุ่งถึง (ปรับตาม power)
-      const peak = 500 * adjustedPower;
-
-      // กำหนดความเร็วแนวนอนตอนวิ่งบนรางบน ตามพลังงานแรง
-      let horizontalVelocity = 3 + 7 * adjustedPower; // 3-10 px/frame
-      if (Math.random() < 0.5) horizontalVelocity = -horizontalVelocity; // ซ้ายหรือขวาสุ่ม
+      const horizontalVelocityBase = 3 + 7 * adjustedPower;
+      let horizontalVelocity = Math.random() < 0.5 ? horizontalVelocityBase : -horizontalVelocityBase;
+      let phase = "up";
 
       const interval = setInterval(() => {
         if (!board.contains(ball)) {
@@ -239,37 +234,34 @@
         }
 
         if (phase === "up") {
-          // ลูกบอลพุ่งขึ้นรางซ้าย
-          height += 8; // ความเร็วขึ้น
-          ball.style.bottom = height + "px";
-          ball.style.left = "15px"; // รางซ้ายคงที่
+          height += velocity;
+          velocity -= gravity;
 
-          if (height >= peak) {
+          ball.style.bottom = height + "px";
+          ball.style.left = "15px";
+
+          if (velocity <= 0) {
             phase = "top";
-            left = 15; // เริ่มวิ่งบนรางบนที่ตำแหน่งซ้ายสุด
-            ball.style.left = left + "px";
+            height = Math.min(height, 180);
+            velocity = horizontalVelocity;
+            left = 15;
           }
         } else if (phase === "top") {
-          // ลูกบอลวิ่งบนรางบนไปทางขวาตาม horizontalVelocity
           left += horizontalVelocity;
           ball.style.left = left + "px";
           ball.style.bottom = height + "px";
 
-          // ถ้าชนขอบซ้ายหรือขวาของรางบน เด้งกลับ
           if (left <= 15) {
-            horizontalVelocity = Math.abs(horizontalVelocity); // เด้งไปขวา
-          } else if (left >= 320) { // รางบนยาวประมาณ 310px จากซ้าย 15+310=325
-            phase = "down"; // เริ่มตกเมื่อลูกบอลถึงปลายราง
+            horizontalVelocity = Math.abs(horizontalVelocity);
+          } else if (left >= 320) {
+            phase = "down";
           }
         } else if (phase === "down") {
-          // ตอนลูกบอลตก, ปรับตำแหน่งซ้ายขวาแบบตาม horizontalVelocity
           left += horizontalVelocity;
-
-          height -= 6; // ความเร็วตก
+          height -= 6;
           ball.style.bottom = height + "px";
           ball.style.left = left + "px";
 
-          // ตกลงถึงพื้น
           if (height <= 0) {
             clearInterval(interval);
             board.removeChild(ball);
