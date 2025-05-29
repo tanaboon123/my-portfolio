@@ -52,6 +52,12 @@
       border: 6px solid #e65100;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
       cursor: grab;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: translateX(-50%) rotate(0deg); }
+      100% { transform: translateX(-50%) rotate(360deg); }
     }
 
     .rotator::after {
@@ -65,39 +71,14 @@
       transform: translateX(-50%);
     }
 
-    .entry-path {
+    .entry-track {
       position: absolute;
-      width: 400px;
-      height: 20px;
-      top: 180px;
-      display: flex;
-      justify-content: space-between;
-      z-index: 2;
-    }
-
-    .hole {
-      width: 40px;
-      height: 20px;
-      background-color: #bf360c;
-      border-radius: 50%;
-    }
-
-    .track {
-      position: absolute;
+      bottom: 0;
+      left: 10px;
       width: 20px;
-      background-color: #a1887f;
-    }
-
-    .track.left {
-      left: 0;
-      top: 0;
-      height: 100%;
-    }
-
-    .track.right {
-      right: 0;
-      top: 0;
-      height: 100%;
+      height: 180px;
+      background-color: #d7ccc8;
+      z-index: 1;
     }
 
     .track-top {
@@ -181,33 +162,14 @@
       overflow-y: scroll;
       font-size: 14px;
     }
-
-    .ball-path {
-      position: absolute;
-      width: 20px;
-      height: 100%;
-      background-color: #d7ccc8;
-      left: 0;
-      z-index: 0;
-    }
   </style>
 </head>
 <body>
   <h1>🎰 เกมปาจิงโกะสมจริง 🎉</h1>
   <div id="powerBar"><div id="powerFill"></div></div>
   <div id="board">
-    <div class="ball-path"></div>
-    <div class="track left"></div>
-    <div class="track right"></div>
+    <div class="entry-track"></div>
     <div class="track-top"></div>
-    <div class="entry-path">
-      <div class="hole" data-index="0"></div>
-      <div class="hole" data-index="1"></div>
-      <div class="hole" data-index="2"></div>
-      <div class="hole" data-index="3"></div>
-      <div class="hole" data-index="4"></div>
-      <div class="hole" data-index="5"></div>
-    </div>
     <div class="rotator" id="rotator"></div>
     <div id="reward-slot" class="reward-slot" style="bottom: 200px;"></div>
     <div id="jackpot-slot" class="reward-slot jackpot-slot" style="bottom: 240px;"></div>
@@ -242,34 +204,50 @@
       spinCount++;
       const ball = document.createElement("div");
       ball.className = "ball";
-      ball.style.left = (Math.random() * 350 + 25) + "px";
-      ball.style.top = "200px";
+      ball.style.left = "15px";
+      ball.style.bottom = "0px";
       board.appendChild(ball);
       logMessage(`หมุนที่พลังงาน: ${power.toFixed(2)} (${spinCount}/100)`);
 
-      let distance = 0;
-      const fallInterval = setInterval(() => {
-        if (distance >= 350) {
-          clearInterval(fallInterval);
-          board.removeChild(ball);
+      let height = 0;
+      let left = 15;
+      let phase = "up";
+      const peak = 500 * power;
 
-          // สุ่มผลลัพธ์
-          const success = Math.random() < power;
-          if (success) {
-            const jackpot = Math.random() < 0.1;
-            if (jackpot) {
-              logMessage("🎉 แจ็คพอต! ลูกบอลลงหลุมทอง!");
-            } else {
-              logMessage("✅ ลูกบอลตกลงหลุมรางวัล!");
-            }
-          } else {
-            logMessage("❌ ลูกบอลพลาดเป้า!");
+      const interval = setInterval(() => {
+        if (!board.contains(ball)) {
+          clearInterval(interval);
+          return;
+        }
+
+        if (phase === "up") {
+          height += 5;
+          ball.style.bottom = height + "px";
+          if (height >= peak) {
+            phase = "right";
+          }
+        } else if (phase === "right") {
+          left += 5;
+          ball.style.left = left + "px";
+          if (left >= 300) {
+            phase = "down";
           }
         } else {
-          distance += 5 + power * 10;
-          ball.style.top = parseInt(ball.style.top) + (5 + power * 10) + "px";
+          height -= 5;
+          ball.style.bottom = height + "px";
+          if (height <= 0) {
+            clearInterval(interval);
+            board.removeChild(ball);
+            const success = Math.random() < power;
+            if (success) {
+              const jackpot = Math.random() < 0.1;
+              logMessage(jackpot ? "🎉 แจ็คพอต! ลูกบอลลงหลุมทอง!" : "✅ ลูกบอลตกลงหลุมรางวัล!");
+            } else {
+              logMessage("❌ ลูกบอลพลาดเป้า!");
+            }
+          }
         }
-      }, 30);
+      }, 20);
     }
 
     let power = 0;
