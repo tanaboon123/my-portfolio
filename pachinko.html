@@ -3,261 +3,215 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>เกมปาจิงโกะ สมจริง</title>
+  <title>เกมปาจิงโกะ TT2</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9f6f0;
+      font-family: sans-serif;
+      background-color: #f9f3ec;
       text-align: center;
-      user-select: none;
     }
+
     h1 {
-      color: #d35400;
-      margin: 20px 0;
+      margin-top: 30px;
+      color: #d84315;
     }
 
     #game-container {
       position: relative;
+      margin: 30px auto;
       width: 320px;
       height: 500px;
-      margin: 0 auto;
-      background: linear-gradient(180deg, #f3e5ab 0%, #b48b3b 100%);
-      border: 4px solid #8b5e00;
-      border-radius: 20px;
-      box-shadow: inset 0 0 10px #d2b36f;
+      background-color: #fff3e0;
+      border: 4px solid #ff9800;
+      border-radius: 10px;
       overflow: hidden;
     }
 
-    /* ช่องรับบอล (ร่องรับบอล) */
-    #catch-slot {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 20px;
-      background: #c2b280;
-      border-radius: 15px / 10px;
-      box-shadow: inset 0 0 8px #8b7b52;
-      border: 2px solid #7a6e3e;
-      z-index: 20;
-    }
-
-    /* ที่หมุน - Spinner */
     #spinner {
+      width: 100px;
+      height: 100px;
+      border: 8px solid #9e9e9e;
+      border-top: 8px solid silver;
+      border-radius: 50%;
       position: absolute;
-      bottom: 60px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      width: 160px;
-      height: 160px;
-      background: radial-gradient(circle at center, #bfaf8f 0%, #7e6d44 100%);
-      border-radius: 50%;
-      box-shadow:
-        inset 0 0 10px #a79d75,
-        0 4px 8px rgba(0,0,0,0.4);
       cursor: grab;
-      user-select: none;
-      transition: box-shadow 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      transition: transform 0.2s;
     }
 
-    #spinner:active {
-      cursor: grabbing;
-      box-shadow:
-        inset 0 0 15px #a79d75,
-        0 0 25px 5px #d4c67a;
-    }
-
-    /* ลูกบอลสีเงิน */
-    .ball {
-      position: absolute;
+    #ball {
       width: 20px;
       height: 20px;
+      background-color: silver;
       border-radius: 50%;
-      background: radial-gradient(circle at 7px 7px, #c0c0c0, #7f7f7f);
-      border: 1.5px solid #4f4f4f;
-      box-shadow:
-        inset 1px 1px 3px rgba(255,255,255,0.9),
-        0 1px 3px rgba(0,0,0,0.3);
-      z-index: 30;
-      pointer-events: none;
-    }
-
-    /* สล็อต 3 ช่อง */
-    #slot-machine {
       position: absolute;
-      top: 60px;
       left: 50%;
       transform: translateX(-50%);
-      width: 200px;
-      height: 100px;
-      background: #eedc82;
-      border-radius: 12px;
-      border: 3px solid #b28f3b;
-      box-shadow: inset 0 0 10px #fff8d3;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      font-size: 48px;
-      font-weight: 900;
-      color: #7a5a01;
-      user-select: none;
-      letter-spacing: 10px;
-      font-family: 'Courier New', Courier, monospace;
-      z-index: 15;
+      top: 480px;
+      display: none;
     }
 
-    /* คะแนน */
-    #scoreboard {
-      margin-top: 15px;
-      font-size: 20px;
-      color: #6e4a00;
+    #catch-slot {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 10px;
+      background-color: #4caf50;
+      border-radius: 5px;
     }
 
-    button#drop-btn {
-      margin-top: 25px;
-      padding: 12px 28px;
-      font-size: 20px;
-      background-color: #cfa02a;
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-weight: 700;
-      box-shadow: 0 3px 6px #a17e0c;
-      cursor: pointer;
-      transition: background-color 0.3s;
+    #slot-machine {
+      margin-top: 20px;
+      font-size: 2em;
     }
-    button#drop-btn:hover:not(:disabled) {
-      background-color: #e0b71a;
-    }
-    button#drop-btn:disabled {
-      background-color: #aaa;
-      cursor: default;
+
+    #high-score {
+      margin-top: 10px;
+      font-size: 1.2em;
+      color: #2e7d32;
     }
   </style>
 </head>
 <body>
-  <h1>🎰 เกมปาจิงโกะ สมจริง TT2 🎉</h1>
+  <h1>🎰 เกมปาจิงโกะ TT2 🎉</h1>
 
   <div id="game-container">
     <div id="catch-slot"></div>
-
-    <div id="slot-machine">- - -</div>
-
-    <div id="spinner" title="หมุนที่หมุนนี้ (ลากหมุนเพื่อเพิ่มแรง)"></div>
+    <div id="ball"></div>
+    <div id="spinner"></div>
   </div>
 
-  <button id="drop-btn" disabled>ปล่อยลูกบอล</button>
-
-  <div id="scoreboard">คะแนนสูงสุด: <span id="high-score">0</span></div>
+  <div id="slot-machine">🍒 🍋 🔔</div>
+  <div id="high-score">คะแนนสูงสุด: <span id="score-value">0</span></div>
 
   <script>
-    const gameContainer = document.getElementById('game-container');
-    const catchSlot = document.getElementById('catch-slot');
-    const slotMachine = document.getElementById('slot-machine');
-    const spinner = document.getElementById('spinner');
-    const dropBtn = document.getElementById('drop-btn');
-    const highScoreSpan = document.getElementById('high-score');
+    const spinner = document.getElementById("spinner");
+    const ball = document.getElementById("ball");
+    const gameContainer = document.getElementById("game-container");
+    const catchSlot = document.getElementById("catch-slot");
+    const slotMachine = document.getElementById("slot-machine");
+    const highScoreSpan = document.getElementById("score-value");
 
-    let ball = null;
+    let isDragging = false;
+    let startAngle = 0;
+    let spinPower = 0;
+    let animationId;
+    let isBallActive = false;
     let ballY = 0;
     let ballVelocity = 0;
-    let gravity = 0.4;
-    let spinForce = 0;
-    let isBallActive = false;
-    let animationId = null;
-    let spinRotation = 0;
-
-    let scores = [0, 0, 0];
-    let highScore = Number(localStorage.getItem('pachinkoHighScore') || 0);
+    const gravity = 0.8;
+    let highScore = localStorage.getItem("pachinkoHighScore") || 0;
     highScoreSpan.textContent = highScore;
 
-    // เปิดปุ่มปล่อยลูกบอลก็ต่อเมื่อหมุนแรงพอ
-    function checkDropEnable() {
-      dropBtn.disabled = spinForce < 5;
+    spinner.addEventListener("mousedown", (e) => {
+      if (isBallActive) return;
+      isDragging = true;
+      startAngle = e.clientX;
+      spinner.style.cursor = "grabbing";
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (isDragging) {
+        isDragging = false;
+        spinner.style.cursor = "grab";
+        launchBall(spinPower);
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const diff = e.clientX - startAngle;
+      spinPower = Math.min(Math.abs(diff), 50);
+      spinner.style.transform = `translateX(-50%) rotate(${diff}deg)`;
+    });
+
+    function launchBall(power) {
+      if (isBallActive) return;
+      ball.style.display = "block";
+      ball.style.left = "50%";
+      ballY = gameContainer.clientHeight - 20;
+      ball.style.top = ballY + "px";
+      ballVelocity = -power * 0.6;
+      isBallActive = true;
+      animationId = requestAnimationFrame(animateBall);
     }
 
-    // ฟังก์ชันหมุนที่หมุนได้โดยลากเมาส์
-    (function setupSpinnerDrag() {
-      let isDragging = false;
-      let lastAngle = 0;
-      let lastTime = 0;
-      let angularVelocity = 0;
+    function animateBall() {
+      ballVelocity += gravity;
+      ballY += ballVelocity;
 
-      function getAngle(x, y) {
-        const rect = spinner.getBoundingClientRect();
-        const cx = rect.left + rect.width/2;
-        const cy = rect.top + rect.height/2;
-        return Math.atan2(y - cy, x - cx) * (180/Math.PI);
+      if (ballY <= 30) {
+        // เด้งกลับเล็กน้อย
+        ballY = 30;
+        ballVelocity *= -0.5;
       }
 
-      spinner.addEventListener('mousedown', e => {
-        isDragging = true;
-        lastAngle = getAngle(e.clientX, e.clientY);
-        lastTime = performance.now();
-        angularVelocity = 0;
-        spinForce = 0;
-        checkDropEnable();
-      });
+      ball.style.top = ballY + "px";
 
-      window.addEventListener('mousemove', e => {
-        if (!isDragging) return;
-        const angle = getAngle(e.clientX, e.clientY);
-        const now = performance.now();
-        let deltaAngle = angle - lastAngle;
-        // ปรับ deltaAngle ให้อยู่ในช่วง -180 ถึง 180
-        if(deltaAngle > 180) deltaAngle -= 360;
-        if(deltaAngle < -180) deltaAngle += 360;
+      // ตรวจสอบการตกช่อง
+      const slotRect = catchSlot.getBoundingClientRect();
+      const ballRect = ball.getBoundingClientRect();
 
-        const deltaTime = now - lastTime;
-        angularVelocity = deltaAngle / deltaTime * 16; // normalized
+      if (
+        ballY < slotRect.bottom - gameContainer.getBoundingClientRect().top &&
+        Math.abs(ballRect.left + 10 - (slotRect.left + slotRect.width / 2)) < 20
+      ) {
+        playSlotMachine();
+        gameContainer.removeChild(ball);
+        createNewBall();
+        isBallActive = false;
+        return;
+      }
 
-        spinRotation += deltaAngle;
-        spinner.style.transform = `translateX(-50%) rotate(${spinRotation}deg)`;
+      if (ballY > gameContainer.clientHeight - 20) {
+        gameContainer.removeChild(ball);
+        createNewBall();
+        isBallActive = false;
+        return;
+      }
 
-        spinForce = Math.min(Math.abs(angularVelocity) * 30, 50);
-        lastAngle = angle;
-        lastTime = now;
-
-        checkDropEnable();
-      });
-
-      window.addEventListener('mouseup', e => {
-        if (isDragging) {
-          isDragging = false;
-          // ถ้าหมุนแรงมากพอให้ปล่อยลูกบอลอัตโนมัติ
-          if (spinForce >= 5) {
-            dropBall();
-          }
-        }
-      });
-    })();
-
-    // ฟังก์ชันปล่อยลูกบอลให้กระเด้งขึ้นด้วยแรงหมุน
-    function dropBall() {
-      if (isBallActive) return; // ป้องกันปล่อยหลายลูกพร้อมกัน
-      isBallActive = true;
-      dropBtn.disabled = true;
-
-      // สร้างลูกบอล
-      ball = document.createElement('div');
-      ball.classList.add('ball');
-      ball.style.left = 'calc(50% - 10px)'; // เริ่มตรงกลาง
-      ballY = gameContainer.clientHeight - 80; // ตำแหน่งที่ปล่อยลูกบอล (บน spinner)
-      ball.style.top = ballY + 'px';
-
-      gameContainer.appendChild(ball);
-
-      // กำหนดความเร็วเริ่มต้นให้ลูกบอลเด้งขึ้นตามแรงหมุน (spinForce)
-      ballVelocity = -spinForce / 2;
-
-      animateBall();
+      animationId = requestAnimationFrame(animateBall);
     }
 
-    // ฟังก์ชันเคลื่อนลูกบอล และเช็คการตกในช่อง
+    function createNewBall() {
+      const newBall = document.createElement("div");
+      newBall.id = "ball";
+      newBall.style.display = "none";
+      gameContainer.appendChild(newBall);
+      ball = newBall;
+    }
 
+    function playSlotMachine() {
+      const symbols = ["🍒", "🔔", "⭐", "7️⃣", "🍋"];
+      const result = [0, 0, 0].map(() =>
+        Math.floor(Math.random() * symbols.length)
+      );
+      const display = result.map((i) => symbols[i]).join(" ");
+      slotMachine.textContent = display;
+
+      let score = 0;
+      if (result[0] === result[1] && result[1] === result[2]) {
+        score = 100;
+      } else if (
+        result[0] === result[1] ||
+        result[1] === result[2] ||
+        result[0] === result[2]
+      ) {
+        score = 50;
+      }
+
+      if (score > 0 && score > highScore) {
+        highScore = score;
+        localStorage.setItem("pachinkoHighScore", highScore);
+        highScoreSpan.textContent = highScore;
+      }
+    }
+  </script>
+</body>
+</html>
