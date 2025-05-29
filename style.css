@@ -1,39 +1,56 @@
+/* หน้าแรกพื้นหลังม่วงอ่อน */
+#home-page {
+  background-color: #f3e5f5; /* สีม่วงอ่อน */
+  padding: 40px;
+  text-align: center;
+}
+
+/* โลโก้ */
+.logo-container {
+  margin-bottom: 30px;
+}
+
+.logo {
+  font-size: 64px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo span {
+  font-size: 40px;
+  color: #ffeb3b; /* สีเหลือง */
+  margin-left: 15px;
+}
+
+/* ปุ่มเมนูขนาดใหญ่ */
+nav {
+  text-align: center;
+  margin-top: 20px;
+}
+
+nav button {
+  font-size: 24px;
+  padding: 15px 30px;
+  margin: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  background-color: #673ab7;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+nav button:hover {
+  background-color: #5e35b1;
+}
+
+/* หน้าแต่ละหน้า */
 .page {
   display: none;
-  padding: 20px;
 }
+
 .page.active {
   display: block;
-}
-
-nav {
-  margin-bottom: 20px;
-}
-
-button {
-  margin-right: 10px;
-  padding: 10px 15px;
-  cursor: pointer;
-  background-color: #007acc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-}
-button:hover {
-  background-color: #005f99;
-}
-
-.download-btn {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 10px 15px;
-  background-color: #28a745;
-  color: white;
-  text-decoration: none;
-  border-radius: 5px;
-  font-size: 16px;
-}
-.download-btn:hover {
-  background-color: #218838;
 }
