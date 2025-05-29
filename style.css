@@ -1,44 +1,23 @@
-/* หน้าแรกพื้นหลังม่วงอ่อน */
-#home-page {
-  background-color: #f3e5f5; /* สีม่วงอ่อน */
-  padding: 40px;
-  text-align: center;
+body {
+  margin: 0;
+  font-family: 'Tahoma', sans-serif;
 }
 
-/* โลโก้ */
-.logo-container {
-  margin-bottom: 30px;
-}
-
-.logo {
-  font-size: 64px;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.logo span {
-  font-size: 40px;
-  color: #ffeb3b; /* สีเหลือง */
-  margin-left: 15px;
-}
-
-/* ปุ่มเมนูขนาดใหญ่ */
 nav {
+  background-color: #222;
+  padding: 15px;
   text-align: center;
-  margin-top: 20px;
 }
 
 nav button {
-  font-size: 24px;
-  padding: 15px 30px;
-  margin: 10px;
-  cursor: pointer;
-  border-radius: 8px;
+  font-size: 1.2rem;           /* ขนาดพอดี */
+  padding: 10px 20px;
+  margin: 8px;
   border: none;
   background-color: #673ab7;
   color: white;
+  border-radius: 10px;
+  cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
@@ -46,11 +25,35 @@ nav button:hover {
   background-color: #5e35b1;
 }
 
-/* หน้าแต่ละหน้า */
 .page {
   display: none;
+  padding: 30px;
 }
 
 .page.active {
   display: block;
 }
+
+#home-page {
+  background-color: #f3e5f5; /* สีม่วงอ่อน */
+  min-height: 100vh;
+  text-align: center;
+  padding-top: 80px;
+}
+
+.logo {
+  font-size: 3rem;
+  color: #2196f3; /* สีฟ้า */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.logo span {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: yellow;
+}
+
