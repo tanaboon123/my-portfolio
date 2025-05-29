@@ -6,75 +6,81 @@
   <title>เกมปาจิงโกะ TT2</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
       font-family: sans-serif;
-      background-color: #f9f3ec;
+      background-color: #f5f5f5;
       text-align: center;
+      margin: 0;
     }
-
     h1 {
-      margin-top: 30px;
+      margin-top: 20px;
       color: #d84315;
     }
-
     #game-container {
       position: relative;
-      margin: 30px auto;
+      margin: 20px auto;
       width: 320px;
       height: 500px;
       background-color: #fff3e0;
       border: 4px solid #ff9800;
-      border-radius: 10px;
+      border-radius: 12px;
       overflow: hidden;
     }
-
     #spinner {
       width: 100px;
       height: 100px;
-      border: 8px solid #9e9e9e;
-      border-top: 8px solid silver;
+      border: 10px solid #9e9e9e;
+      border-top: 10px solid silver;
       border-radius: 50%;
       position: absolute;
-      bottom: 20px;
+      bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
       cursor: grab;
-      transition: transform 0.2s;
     }
-
     #ball {
       width: 20px;
       height: 20px;
       background-color: silver;
       border-radius: 50%;
       position: absolute;
+      top: 470px;
       left: 50%;
       transform: translateX(-50%);
-      top: 480px;
       display: none;
     }
-
-    #catch-slot {
+    .slot {
       position: absolute;
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 50px;
-      height: 10px;
+      top: 20px;
+      width: 60px;
+      height: 15px;
       background-color: #4caf50;
-      border-radius: 5px;
+      border-radius: 10px;
     }
+    #slot-left { left: 30px; }
+    #slot-center { left: 130px; }
+    #slot-right { left: 230px; }
 
-    #slot-machine {
-      margin-top: 20px;
-      font-size: 2em;
-    }
-
-    #high-score {
+    #score, #high-score, #remaining, #round {
       margin-top: 10px;
       font-size: 1.2em;
-      color: #2e7d32;
+    }
+    #result {
+      font-size: 1.5em;
+      margin-top: 10px;
+      color: #388e3c;
+    }
+    #reset-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #e53935;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #reset-btn:hover {
+      background-color: #c62828;
     }
   </style>
 </head>
@@ -82,135 +88,136 @@
   <h1>🎰 เกมปาจิงโกะ TT2 🎉</h1>
 
   <div id="game-container">
-    <div id="catch-slot"></div>
+    <div id="slot-left" class="slot"></div>
+    <div id="slot-center" class="slot"></div>
+    <div id="slot-right" class="slot"></div>
     <div id="ball"></div>
     <div id="spinner"></div>
   </div>
 
-  <div id="slot-machine">🍒 🍋 🔔</div>
-  <div id="high-score">คะแนนสูงสุด: <span id="score-value">0</span></div>
+  <div id="round">รอบที่: 1 / 100</div>
+  <div id="score">คะแนน: 0</div>
+  <div id="high-score">คะแนนสูงสุด: 0</div>
+  <div id="remaining">ลูกบอลที่เหลือ: 100</div>
+  <div id="result"></div>
+
+  <button id="reset-btn" onclick="resetGame()">เริ่มเกมใหม่</button>
 
   <script>
     const spinner = document.getElementById("spinner");
     const ball = document.getElementById("ball");
-    const gameContainer = document.getElementById("game-container");
-    const catchSlot = document.getElementById("catch-slot");
-    const slotMachine = document.getElementById("slot-machine");
-    const highScoreSpan = document.getElementById("score-value");
+    const scoreText = document.getElementById("score");
+    const highScoreText = document.getElementById("high-score");
+    const remainingText = document.getElementById("remaining");
+    const resultText = document.getElementById("result");
+    const roundText = document.getElementById("round");
 
-    let isDragging = false;
-    let startAngle = 0;
-    let spinPower = 0;
-    let animationId;
+    let dragging = false;
+    let startX = 0;
+    let spinForce = 0;
     let isBallActive = false;
-    let ballY = 0;
-    let ballVelocity = 0;
-    const gravity = 0.8;
-    let highScore = localStorage.getItem("pachinkoHighScore") || 0;
-    highScoreSpan.textContent = highScore;
+    let velocity = 0;
+    let positionY = 470;
+    let positionX = 160;
+    let remainingBalls = 100;
+    let score = 0;
+    let round = 1;
+    let highScore = parseInt(localStorage.getItem("highScore") || "0");
+
+    highScoreText.textContent = "คะแนนสูงสุด: " + highScore;
 
     spinner.addEventListener("mousedown", (e) => {
-      if (isBallActive) return;
-      isDragging = true;
-      startAngle = e.clientX;
-      spinner.style.cursor = "grabbing";
+      if (isBallActive || remainingBalls <= 0) return;
+      dragging = true;
+      startX = e.clientX;
     });
 
     window.addEventListener("mouseup", () => {
-      if (isDragging) {
-        isDragging = false;
-        spinner.style.cursor = "grab";
-        launchBall(spinPower);
+      if (dragging) {
+        dragging = false;
+        spinForce = Math.min(Math.abs(spinForce), 80);
+        launchBall(spinForce);
       }
     });
 
     window.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
-      const diff = e.clientX - startAngle;
-      spinPower = Math.min(Math.abs(diff), 50);
-      spinner.style.transform = `translateX(-50%) rotate(${diff}deg)`;
+      if (!dragging) return;
+      spinForce = e.clientX - startX;
+      spinner.style.transform = `translateX(-50%) rotate(${spinForce}deg)`;
     });
 
-    function launchBall(power) {
+    function launchBall(force) {
       if (isBallActive) return;
-      ball.style.display = "block";
-      ball.style.left = "50%";
-      ballY = gameContainer.clientHeight - 20;
-      ball.style.top = ballY + "px";
-      ballVelocity = -power * 0.6;
       isBallActive = true;
-      animationId = requestAnimationFrame(animateBall);
+      positionY = 470;
+      positionX = 160;
+      velocity = -Math.abs(force) * 0.4;
+      ball.style.left = positionX + "px";
+      ball.style.top = positionY + "px";
+      ball.style.display = "block";
+      dropBall();
     }
 
-    function animateBall() {
-      ballVelocity += gravity;
-      ballY += ballVelocity;
+    function dropBall() {
+      const fall = setInterval(() => {
+        velocity += 0.8;
+        positionY += velocity;
+        positionX += Math.random() * 2 - 1.5;
 
-      if (ballY <= 30) {
-        // เด้งกลับเล็กน้อย
-        ballY = 30;
-        ballVelocity *= -0.5;
-      }
+        ball.style.top = positionY + "px";
+        ball.style.left = positionX + "px";
 
-      ball.style.top = ballY + "px";
+        if (positionY >= 30 && positionY <= 45) {
+          if (positionX >= 30 && positionX <= 90) {
+            endBall("พลาด (ช่องซ้าย)", 0);
+            clearInterval(fall);
+          } else if (positionX >= 130 && positionX <= 190) {
+            endBall("🎉 ได้แต้ม! (ช่องกลาง)", 100);
+            clearInterval(fall);
+          } else if (positionX >= 230 && positionX <= 290) {
+            endBall("พลาด (ช่องขวา)", 0);
+            clearInterval(fall);
+          }
+        }
 
-      // ตรวจสอบการตกช่อง
-      const slotRect = catchSlot.getBoundingClientRect();
-      const ballRect = ball.getBoundingClientRect();
-
-      if (
-        ballY < slotRect.bottom - gameContainer.getBoundingClientRect().top &&
-        Math.abs(ballRect.left + 10 - (slotRect.left + slotRect.width / 2)) < 20
-      ) {
-        playSlotMachine();
-        gameContainer.removeChild(ball);
-        createNewBall();
-        isBallActive = false;
-        return;
-      }
-
-      if (ballY > gameContainer.clientHeight - 20) {
-        gameContainer.removeChild(ball);
-        createNewBall();
-        isBallActive = false;
-        return;
-      }
-
-      animationId = requestAnimationFrame(animateBall);
+        if (positionY > 500) {
+          endBall("พลาด (หลุดจากกระดาน)", 0);
+          clearInterval(fall);
+        }
+      }, 20);
     }
 
-    function createNewBall() {
-      const newBall = document.createElement("div");
-      newBall.id = "ball";
-      newBall.style.display = "none";
-      gameContainer.appendChild(newBall);
-      ball = newBall;
-    }
+    function endBall(message, points) {
+      ball.style.display = "none";
+      isBallActive = false;
+      resultText.textContent = `รอบที่ ${round} ➤ ${message} (+${points} คะแนน)`;
+      score += points;
+      remainingBalls--;
+      round++;
 
-    function playSlotMachine() {
-      const symbols = ["🍒", "🔔", "⭐", "7️⃣", "🍋"];
-      const result = [0, 0, 0].map(() =>
-        Math.floor(Math.random() * symbols.length)
-      );
-      const display = result.map((i) => symbols[i]).join(" ");
-      slotMachine.textContent = display;
-
-      let score = 0;
-      if (result[0] === result[1] && result[1] === result[2]) {
-        score = 100;
-      } else if (
-        result[0] === result[1] ||
-        result[1] === result[2] ||
-        result[0] === result[2]
-      ) {
-        score = 50;
-      }
-
-      if (score > 0 && score > highScore) {
+      if (score > highScore) {
         highScore = score;
-        localStorage.setItem("pachinkoHighScore", highScore);
-        highScoreSpan.textContent = highScore;
+        localStorage.setItem("highScore", highScore);
+        highScoreText.textContent = "คะแนนสูงสุด: " + highScore;
       }
+
+      scoreText.textContent = "คะแนน: " + score;
+      remainingText.textContent = "ลูกบอลที่เหลือ: " + remainingBalls;
+      roundText.textContent = `รอบที่: ${round} / 100`;
+
+      if (remainingBalls <= 0) {
+        resultText.textContent += " 🎮 จบเกม!";
+      }
+    }
+
+    function resetGame() {
+      score = 0;
+      remainingBalls = 100;
+      round = 1;
+      scoreText.textContent = "คะแนน: 0";
+      remainingText.textContent = "ลูกบอลที่เหลือ: 100";
+      roundText.textContent = "รอบที่: 1 / 100";
+      resultText.textContent = "";
     }
   </script>
 </body>
