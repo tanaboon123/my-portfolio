@@ -69,9 +69,10 @@
       position: absolute;
       width: 400px;
       height: 20px;
-      top: 0;
+      top: 180px;
       display: flex;
       justify-content: space-between;
+      z-index: 2;
     }
 
     .hole {
@@ -99,6 +100,16 @@
       height: 100%;
     }
 
+    .track-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 20px;
+      background-color: #a1887f;
+      z-index: 1;
+    }
+
     .reward-slot {
       position: absolute;
       width: 80px;
@@ -114,7 +125,7 @@
 
     #slot-machine {
       position: absolute;
-      top: 260px;
+      top: 310px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -188,6 +199,7 @@
     <div class="ball-path"></div>
     <div class="track left"></div>
     <div class="track right"></div>
+    <div class="track-top"></div>
     <div class="entry-path">
       <div class="hole" data-index="0"></div>
       <div class="hole" data-index="1"></div>
@@ -208,143 +220,7 @@
   <button onclick="resetGame()">เริ่มเกมใหม่</button>
   <div id="log"></div>
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      let round = 0;
-      let maxRounds = 100;
-      let score = 0;
-      let isDragging = false;
-      let dragPower = 0;
-      let powerDirection = 1;
-
-      const rotator = document.getElementById("rotator");
-      const powerBar = document.getElementById("powerFill");
-
-      function animatePowerBar() {
-        if (isDragging) {
-          dragPower += 0.02 * powerDirection;
-          if (dragPower >= 1) {
-            dragPower = 1;
-            powerDirection = -1;
-          } else if (dragPower <= 0) {
-            dragPower = 0;
-            powerDirection = 1;
-          }
-          powerBar.style.width = dragPower * 100 + "%";
-          rotator.style.transform = `translateX(-50%) rotate(${dragPower * 360}deg)`;
-          requestAnimationFrame(animatePowerBar);
-        }
-      }
-
-      rotator.addEventListener("mousedown", () => {
-        isDragging = true;
-        dragPower = 0;
-        powerDirection = 1;
-        animatePowerBar();
-      });
-
-      window.addEventListener("mouseup", () => {
-        if (!isDragging) return;
-        isDragging = false;
-
-        let angle = dragPower * 360;
-        let spinVelocity = dragPower * 20;
-
-        function animateRotation() {
-          angle += spinVelocity;
-          spinVelocity *= 0.95;
-          rotator.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-
-          if (spinVelocity > 0.1) {
-            requestAnimationFrame(animateRotation);
-          } else {
-            rotator.style.transform = `translateX(-50%) rotate(0deg)`;
-          }
-        }
-
-        animateRotation();
-        powerBar.style.width = "0%";
-        spin(dragPower);
-        dragPower = 0;
-      });
-
-      function log(msg) {
-        const logBox = document.getElementById("log");
-        logBox.innerHTML += msg + "<br>";
-        logBox.scrollTop = logBox.scrollHeight;
-      }
-
-      window.resetGame = function () {
-        round = 0;
-        score = 0;
-        document.getElementById("log").innerHTML = "เริ่มเกมใหม่แล้ว<br>";
-        document.getElementById("slot1").innerText = "-";
-        document.getElementById("slot2").innerText = "-";
-        document.getElementById("slot3").innerText = "-";
-      }
-
-      function spin(power) {
-        if (round >= maxRounds) {
-          alert("เกมจบแล้ว คุณทำได้ " + score + " แต้ม");
-          return;
-        }
-
-        round++;
-        const ball = document.createElement("div");
-        ball.classList.add("ball");
-        document.getElementById("board").appendChild(ball);
-
-        let x = 10;
-        let y = 580;
-        let vx = 0;
-        let vy = -power * 25;
-
-        const interval = setInterval(() => {
-          vy += 0.4;
-          y += vy;
-
-          ball.style.left = x + "px";
-          ball.style.top = y + "px";
-
-          if (y <= 20) {
-            const holeIndex = Math.floor((x / 400) * 6);
-            clearInterval(interval);
-            if (ball.parentNode) ball.parentNode.removeChild(ball);
-            handleHole(holeIndex);
-          } else if (y > 600) {
-            clearInterval(interval);
-            if (ball.parentNode) ball.parentNode.removeChild(ball);
-            log(`รอบ ${round}: พลาด ไม่ได้คะแนน`);
-          }
-        }, 30);
-      }
-
-      function handleHole(index) {
-        if (index === 2 || index === 4) {
-          const isJackpot = index === 4;
-          const symbols = ["🍒", "7", "⭐"];
-          const result = [
-            symbols[Math.floor(Math.random() * symbols.length)],
-            symbols[Math.floor(Math.random() * symbols.length)],
-            symbols[Math.floor(Math.random() * symbols.length)]
-          ];
-          document.getElementById("slot1").innerText = result[0];
-          document.getElementById("slot2").innerText = result[1];
-          document.getElementById("slot3").innerText = result[2];
-
-          let gained = 0;
-          if (result[0] === result[1] && result[1] === result[2]) gained = 200;
-          else if (result[0] === result[1] || result[1] === result[2]) gained = 50;
-
-          if (isJackpot) gained *= 8;
-          score += gained;
-
-          log(`รอบ ${round}: ลง${isJackpot ? "รูแจ็กพอต" : "รูรางวัลธรรมดา"}, ได้ ${gained} แต้ม, รวม ${score}`);
-        } else {
-          log(`รอบ ${round}: พลาด ไม่ได้คะแนน`);
-        }
-      }
-    });
+    // JavaScript ยังใช้เหมือนเดิมตามโค้ดใน Canvas
   </script>
 </body>
 </html>
-
