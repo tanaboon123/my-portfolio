@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>เกมปาจิงโกะสมจริง</title>
+  <title>เกมปาจิงโกะ</title>
   <style>
     body {
       font-family: sans-serif;
@@ -78,7 +78,7 @@
       bottom: 0;
       left: 10px;
       width: 20px;
-      height: 400px; /* ยาวขึ้นเพื่อเชื่อมกับรางบน */
+      height: 180px;
       background-color: #d7ccc8;
       z-index: 1;
       border-radius: 10px;
@@ -86,7 +86,7 @@
 
     .track-top {
       position: absolute;
-      top: 380px; /* เลื่อนขึ้นมาเชื่อมกับรางซ้าย */
+      top: 400px;
       left: 15px;
       width: 310px;
       height: 20px;
@@ -225,17 +225,12 @@
       // ปรับความแรงเพิ่ม 15%
       const adjustedPower = Math.min(power * 1.15, 1);
 
-      // ความสูงสุดที่ลูกบอลจะพุ่งถึงบนรางซ้าย (เปลี่ยนเป็น 380px ตามรางซ้าย)
-      const peak = 380 * adjustedPower;
+      // ความสูงสุดที่ลูกบอลจะพุ่งถึง (ปรับตาม power)
+      const peak = 500 * adjustedPower;
 
-      // ความเร็วแนวนอนตอนวิ่งบนรางบน
-      let horizontalVelocity = 4 + Math.random() * 2; // 4-6 px/frame วิ่งขวาอย่างเดียว
-
-      // สำหรับสั่นซ้ายขวาเล็กน้อยบนรางบน
-      const oscillationAmplitude = 5; // px
-      const oscillationFrequency = 0.005; // ความถี่สั่น
-
-      const startTime = Date.now();
+      // กำหนดความเร็วแนวนอนตอนวิ่งบนรางบน ตามพลังงานแรง
+      let horizontalVelocity = 3 + 7 * adjustedPower; // 3-10 px/frame
+      if (Math.random() < 0.5) horizontalVelocity = -horizontalVelocity; // ซ้ายหรือขวาสุ่ม
 
       const interval = setInterval(() => {
         if (!board.contains(ball)) {
@@ -244,40 +239,38 @@
         }
 
         if (phase === "up") {
+          // ลูกบอลพุ่งขึ้นรางซ้าย
           height += 8; // ความเร็วขึ้น
-          if (height > peak) height = peak;
           ball.style.bottom = height + "px";
-          ball.style.left = "15px";
+          ball.style.left = "15px"; // รางซ้ายคงที่
 
           if (height >= peak) {
             phase = "top";
-            left = 15; // เริ่มวิ่งบนรางบนซ้ายสุด
+            left = 15; // เริ่มวิ่งบนรางบนที่ตำแหน่งซ้ายสุด
+            ball.style.left = left + "px";
           }
         } else if (phase === "top") {
-          // วิ่งไปทางขวา พร้อมสั่นเล็กน้อย
-          const elapsed = Date.now() - startTime;
+          // ลูกบอลวิ่งบนรางบนไปทางขวาตาม horizontalVelocity
           left += horizontalVelocity;
-          const oscillation = oscillationAmplitude * Math.sin(elapsed * oscillationFrequency * 2 * Math.PI);
-          ball.style.left = (left + oscillation) + "px";
-          ball.style.bottom = height + "px";
-
-          if (left >= 320) { // ถึงปลายรางบน
-            phase = "down";
-          }
-        } else if (phase === "down") {
-          // ตกลงมาแบบธรรมชาติ มีการเลื่อนซ้ายขวาเล็กน้อย
-          const drift = (Math.random() - 0.5) * 6;
-          left += drift;
-          if (left < 10) left = 10;
-          if (left > 320) left = 320;
-
-          height -= 6;
-          if (height < 0) height = 0;
-
           ball.style.left = left + "px";
           ball.style.bottom = height + "px";
 
-          if (height === 0) {
+          // ถ้าชนขอบซ้ายหรือขวาของรางบน เด้งกลับ
+          if (left <= 15) {
+            horizontalVelocity = Math.abs(horizontalVelocity); // เด้งไปขวา
+          } else if (left >= 320) { // รางบนยาวประมาณ 310px จากซ้าย 15+310=325
+            phase = "down"; // เริ่มตกเมื่อลูกบอลถึงปลายราง
+          }
+        } else if (phase === "down") {
+          // ตอนลูกบอลตก, ปรับตำแหน่งซ้ายขวาแบบตาม horizontalVelocity
+          left += horizontalVelocity;
+
+          height -= 6; // ความเร็วตก
+          ball.style.bottom = height + "px";
+          ball.style.left = left + "px";
+
+          // ตกลงถึงพื้น
+          if (height <= 0) {
             clearInterval(interval);
             board.removeChild(ball);
             const success = Math.random() < adjustedPower;
@@ -316,7 +309,6 @@
       logMessage("เริ่มเกมใหม่แล้ว!");
     }
 
-    // เริ่มเกมใหม่ตอนเปิดหน้า
     resetGame();
   </script>
 </body>
