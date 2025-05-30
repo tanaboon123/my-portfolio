@@ -31,7 +31,7 @@
 
     .entry-track {
       position: absolute;
-      left: 40px;
+      left: 0px; /* เปลี่ยนจาก 40px */
       bottom: 0;
       width: 20px;
       height: 100%;
@@ -43,7 +43,7 @@
     .track-top {
       position: absolute;
       top: 0;
-      left: 40px;
+      left: 0px; /* เปลี่ยนจาก 40px */
       width: 320px;
       height: 20px;
       background-color: #8d6e63;
@@ -198,24 +198,23 @@
 
       const ball = document.createElement("div");
       ball.className = "ball";
-      ball.style.left = "45px";
+      ball.style.left = "5px";  // เริ่มจากซ้ายสุดของราง
       ball.style.bottom = "0px";
       board.appendChild(ball);
 
-      let vx = 4 + Math.random() * 2;
-      if (Math.random() < 0.5) vx *= -1;
-      let vy = 12 * power;
-      let x = 45;
+      let vx = 6 * power + Math.random(); // เร็วขึ้นเมื่อพลังเยอะ
+      let vy = 18 * power; // พลังแนวดิ่งสูงขึ้น
+      let x = 5;
       let y = 0;
 
-      const g = 0.3; // gravity
+      const g = 0.4; // แรงโน้มถ่วง
 
       const interval = setInterval(() => {
         vy -= g;
         x += vx;
         y += vy;
 
-        if (x <= 0 || x >= 385) vx *= -1; // bounce on sides
+        if (x <= 0 || x >= 385) vx *= -1;
 
         if (y <= 0) {
           clearInterval(interval);
