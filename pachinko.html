@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>เกมปาจิงโกะ</title>
   <style>
     body {
@@ -31,11 +31,11 @@
 
     .entry-track {
       position: absolute;
-      left: 40px;
+      left: 0;
       bottom: 0;
       width: 20px;
       height: 100%;
-      background-color: #d7ccc8;
+      background-color: #a1887f;
       z-index: 1;
       border-radius: 10px;
     }
@@ -43,8 +43,8 @@
     .track-top {
       position: absolute;
       top: 0;
-      left: 40px;
-      width: 320px;
+      left: 0;
+      width: 100%;
       height: 20px;
       background-color: #8d6e63;
       z-index: 2;
@@ -53,13 +53,14 @@
 
     .reward-slot {
       position: absolute;
-      width: 60px;
+      width: 80px;
       height: 20px;
       background-color: green;
-      bottom: 100px;
+      top: 0;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 5px;
+      z-index: 3;
     }
 
     .ball {
@@ -68,41 +69,24 @@
       background-color: silver;
       border-radius: 50%;
       position: absolute;
-      z-index: 3;
+      z-index: 4;
     }
 
-    .spinner {
-      margin: 20px auto;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: radial-gradient(orange, #ff9800);
-      border: 5px solid #d84315;
-      position: relative;
-      animation: spin 2s linear infinite;
-    }
-
-    .spinner::after {
-      content: '';
-      width: 4px;
-      height: 40px;
-      background: red;
+    /* ตำแหน่งสล็อตตรงกลางตู้ปาจิงโกะ */
+    #slot-machine {
       position: absolute;
-      top: 10px;
+      top: 270px;  /* ประมาณกลางแนวตั้งของบอร์ด */
       left: 50%;
       transform: translateX(-50%);
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    #slot-machine {
       display: flex;
       justify-content: center;
-      margin-top: 20px;
       gap: 10px;
+      z-index: 5;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px #888;
+      user-select: none;
     }
 
     .slot {
@@ -146,20 +130,24 @@
     <div class="entry-track"></div>
     <div class="track-top"></div>
     <div class="reward-slot" id="reward-slot"></div>
+
+    <div id="slot-machine">
+      <div class="slot" id="slot1">-</div>
+      <div class="slot" id="slot2">-</div>
+      <div class="slot" id="slot3">-</div>
+    </div>
   </div>
 
-  <div class="spinner" title="แสดงพลังงานหมุน"></div>
   <input type="range" id="powerRange" min="0" max="100" value="50" style="width: 300px;" />
   <div>พลังงานหมุน: <span id="powerValue">0.5</span></div>
   <button onclick="launchBall()">เริ่มหมุน</button>
 
-  <div id="slot-machine">
-    <div class="slot" id="slot1">-</div>
-    <div class="slot" id="slot2">-</div>
-    <div class="slot" id="slot3">-</div>
+  <div>
+    คะแนนรอบนี้: <span id="roundScore">0</span> |
+    คะแนนรวมสะสม: <span id="totalScore">0</span> |
+    คะแนนสูงสุด: <span id="highScore">0</span>
   </div>
 
-  <div>คะแนนสูงสุด: <span id="highScore">0</span></div>
   <button onclick="resetGame()">เริ่มเกมใหม่</button>
 
   <div id="log"></div>
@@ -170,14 +158,17 @@
     const slot1 = document.getElementById("slot1");
     const slot2 = document.getElementById("slot2");
     const slot3 = document.getElementById("slot3");
-    const highScoreDisplay = document.getElementById("highScore");
     const rewardSlot = document.getElementById("reward-slot");
+    const highScoreDisplay = document.getElementById("highScore");
+    const roundScoreDisplay = document.getElementById("roundScore");
+    const totalScoreDisplay = document.getElementById("totalScore");
 
     let spinCount = 0;
-    let maxSpins = 100;
+    const maxSpins = 100;
     let highScore = 0;
+    let totalScore = 0;
 
-    document.getElementById("powerRange").addEventListener("input", function () {
+    document.getElementById("powerRange").addEventListener("input", function() {
       document.getElementById("powerValue").textContent = (this.value / 100).toFixed(2);
     });
 
@@ -190,84 +181,83 @@
 
     function launchBall() {
       if (spinCount >= maxSpins) {
-        logMessage("เกมจบแล้ว! ครบ 100 ครั้งแล้ว");
+        logMessage("เกมจบแล้ว! หมุนครบ 100 ครั้งแล้ว");
         return;
       }
 
       spinCount++;
       const power = parseFloat(document.getElementById("powerRange").value) / 100;
-      logMessage(`หมุนที่พลังงาน: ${power.toFixed(2)} (${spinCount}/${maxSpins})`);
+      logMessage(`หมุนครั้งที่ ${spinCount} ด้วยพลังงาน: ${power.toFixed(2)}`);
 
       const ball = document.createElement("div");
       ball.className = "ball";
-      ball.style.left = "45px";
+      ball.style.left = "5px";
       ball.style.bottom = "0px";
       board.appendChild(ball);
 
-      let vx = 9 * power; // ความเร็วแกน X
-      let vy = 28 * power; // ความเร็วแกน Y
-      let x = 45;
+      let vx = 4 * (power * 2);
+      if (Math.random() < 0.5) vx *= -1;
+      let vy = 20 * power;
+      let x = 5;
       let y = 0;
-
-      const g = 0.5; // gravity
-      const ballSize = 15;
+      const g = 0.35;
 
       const interval = setInterval(() => {
         vy -= g;
         x += vx;
         y += vy;
 
-        // ขอบซ้าย (ล็อคที่ 40px)
-        if (x <= 40) {
-          x = 40;
-          vx *= -0.9;
+        // ล็อกลูกบอลไม่ให้ออกทางซ้าย (รางแนวตั้งซ้ายสุด)
+        if (x < 0) {
+          x = 0;
+          vx = Math.abs(vx);
         }
 
-        // ขอบขวา
-        if (x >= 385 - ballSize) {
-          x = 385 - ballSize;
-          vx *= -0.9;
+        // ล็อกลูกบอลไม่ให้ออกทางขวา
+        if (x > board.clientWidth - 15) {
+          x = board.clientWidth - 15;
+          vx = -Math.abs(vx);
         }
 
-        // ขอบบน
-        if (y >= 585 - ballSize) {
-          y = 585 - ballSize;
-          vy *= -0.9;
+        // ชนเพดาน (บนสุดของบอร์ด)
+        if (y > board.clientHeight - 15) {
+          y = board.clientHeight - 15;
+          vy *= -0.7; // เด้งแรงลดลง
+          vx = Math.abs(vx); // ให้ลูกบอลเลี้ยวขวา
         }
 
-        // ชนพื้น
-        if (y <= 0) {
+        // ตรวจจับลูกบอลชนรางรางวัล (เขียวตรงกลางบน)
+        // rewardSlot top relative to board top
+        const rewardTop = rewardSlot.offsetTop;
+        const rewardLeft = rewardSlot.offsetLeft;
+        const rewardRight = rewardLeft + rewardSlot.offsetWidth;
+        // ลูกบอล y position กับ x position
+        if (y >= rewardTop && y <= rewardTop + rewardSlot.offsetHeight &&
+            x + 7.5 >= rewardLeft && x + 7.5 <= rewardRight) {
           clearInterval(interval);
           board.removeChild(ball);
-
-          // ตรวจว่าลูกบอลตกลงรางรางวัลหรือไม่
-          const rewardRect = rewardSlot.getBoundingClientRect();
-          const boardRect = board.getBoundingClientRect();
-          const ballX = x + boardRect.left;
-          const ballY = y + boardRect.top + ballSize;
-
-          const isInside =
-            ballX > rewardRect.left &&
-            ballX < rewardRect.right &&
-            ballY > rewardRect.top &&
-            ballY < rewardRect.bottom;
-
-          if (isInside) {
-            logMessage("🎯 โบนัส! ลูกบอลเข้าเป้ารางวัล!");
-            runSlotMachine();
-          } else {
-            logMessage("❌ ลูกบอลพลาดเป้า!");
-          }
-        } else {
-          ball.style.left = `${x}px`;
-          ball.style.bottom = `${y}px`;
+          runSlotMachine();
+          return;
         }
+
+        // ลูกบอลตกพื้น (ต่ำกว่า 0)
+        if (y < 0) {
+          clearInterval(interval);
+          board.removeChild(ball);
+          logMessage("❌ ลูกบอลพลาดเป้า!");
+          roundScoreDisplay.textContent = "0";
+          return;
+        }
+
+        ball.style.left = `${x}px`;
+        ball.style.bottom = `${y}px`;
       }, 20);
     }
 
     function runSlotMachine() {
       const symbols = ["🍒", "🍋", "🍊", "🔔", "💎"];
       let count = 0;
+
       const interval = setInterval(() => {
         slot1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
         slot2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
@@ -275,8 +265,19 @@
         count++;
         if (count > 20) {
           clearInterval(interval);
-          const score = (slot1.textContent === slot2.textContent && slot2.textContent === slot3.textContent) ? 100 : 50;
+
+          // กำหนดคะแนน: ถ้าสล็อตเหมือนกัน 3 ตัวได้ 100 คะแนน, ไม่เหมือนกันได้ 50 คะแนน
+          let score = 50;
+          if (slot1.textContent === slot2.textContent && slot2.textContent === slot3.textContent) {
+            score = 100;
+          }
+
           logMessage(`🎰 ได้คะแนน ${score} คะแนน`);
+          roundScoreDisplay.textContent = score;
+
+          totalScore += score;
+          totalScoreDisplay.textContent = totalScore;
+
           if (score > highScore) {
             highScore = score;
             highScoreDisplay.textContent = highScore;
@@ -287,8 +288,11 @@
 
     function resetGame() {
       spinCount = 0;
+      totalScore = 0;
       log.innerHTML = "";
       highScore = 0;
+      roundScoreDisplay.textContent = "0";
+      totalScoreDisplay.textContent = "0";
       highScoreDisplay.textContent = "0";
       slot1.textContent = "-";
       slot2.textContent = "-";
@@ -300,4 +304,5 @@
   </script>
 </body>
 </html>
+
 
