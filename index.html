@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-    /* สไตล์พื้นหลังเกมแบบดันเจี้ยนกลางคืน */
     body {
       margin: 0;
       padding: 0;
@@ -17,7 +16,6 @@
       color: white;
     }
 
-    /* ดาวตก */
     .shooting-stars {
       position: fixed;
       top: 0;
@@ -49,7 +47,6 @@
       }
     }
 
-    /* เมนู */
     nav {
       position: relative;
       z-index: 2;
@@ -74,7 +71,6 @@
       background-color: #e91e63;
     }
 
-    /* หน้าหลัก */
     .page {
       display: none;
       padding: 30px;
@@ -124,18 +120,28 @@
       }
     }
 
+    .intro-container {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
     .intro-text {
-      font-size: 1rem;
+      font-size: 1.2rem;
+      flex: 1;
       text-align: center;
-      margin-bottom: 40px;
+      text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffff, 0 0 30px #00ffff;
+      color: #ffffff;
+      margin-bottom: 30px;
     }
 
     .pachinko-link {
-      text-align: center;
+      text-align: left;
     }
 
     .pachinko-link img {
-      width: 200px;
+      width: 180px;
       cursor: pointer;
       transition: transform 0.3s;
     }
@@ -144,7 +150,6 @@
       transform: scale(1.1);
     }
 
-    /* Portfolio */
     #portfolio-page h1 {
       text-align: center;
       color: #ffea00;
@@ -168,13 +173,18 @@
       <span class="gear">⚙️</span>
       <span class="game-title">MY WORLD <span class="highlight">TT2</span></span>
     </div>
-    <p class="intro-text">ยินดีต้อนรับเข้าสู่โลกของผม ตอนนี้กำลังพัฒนาเว็บไซต์อยู่ ขออภัยในความไม่สมบูรณ์ครับ</p>
 
-    <div class="pachinko-link">
-      <a href="pachinko.html">
-        <img src="pachinko-machine.png" alt="เข้าเกมปาจิงโกะ" />
-      </a>
-      <p>🎰 คลิกที่รูปเพื่อเข้าเกมปาจิงโกะ 🎮</p>
+    <div class="intro-container">
+      <!-- รูปอยู่ซ้าย -->
+      <div class="pachinko-link">
+        <a href="pachinko.html">
+          <img src="pachinko-machine.png" alt="เข้าเกมปาจิงโกะ" />
+        </a>
+        <p>🎰 คลิกที่รูปเพื่อเข้าเกมปาจิงโกะ 🎮</p>
+      </div>
+
+      <!-- ข้อความใหญ่และเรืองแสง -->
+      <p class="intro-text">ยินดีต้อนรับเข้าสู่โลกของผม ตอนนี้กำลังพัฒนาเว็บไซต์อยู่ ขออภัยในความไม่สมบูรณ์ครับ</p>
     </div>
   </section>
 
@@ -200,7 +210,7 @@
       document.getElementById('home-page').classList.remove('active');
     };
 
-    // สร้างดาวตกแบบสุ่ม 15 ดวง
+    // สร้างดาวตกแบบสุ่ม
     const container = document.getElementById("shootingStars");
     for (let i = 0; i < 15; i++) {
       const star = document.createElement("div");
@@ -215,4 +225,3 @@
 
 </body>
 </html>
-
