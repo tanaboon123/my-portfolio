@@ -31,7 +31,7 @@
 
     .entry-track {
       position: absolute;
-      left: 0px; /* ชิดซ้ายสุด */
+      left: 0px;
       bottom: 0;
       width: 20px;
       height: 100%;
@@ -43,7 +43,7 @@
     .track-top {
       position: absolute;
       top: 0;
-      left: 20px; /* เริ่มถัดจากรางแนวดิ่ง */
+      left: 20px;
       width: 360px;
       height: 20px;
       background-color: #8d6e63;
@@ -56,7 +56,7 @@
       width: 60px;
       height: 20px;
       background-color: green;
-      top: 280px; /* อยู่ตรงกลางแนวตั้ง */
+      top: 290px;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 5px;
@@ -81,7 +81,7 @@
       border: 5px solid #d84315;
       position: relative;
       animation: spin 2s linear infinite;
-      display: none; /* ซ่อนก่อน */
+      display: block;
     }
 
     .spinner::after {
@@ -103,7 +103,7 @@
     #slot-machine {
       display: flex;
       justify-content: center;
-      margin-top: 20px;
+      margin-top: 10px;
       gap: 10px;
     }
 
@@ -144,7 +144,7 @@
 
     #powerBarContainer {
       width: 300px;
-      height: 20px;
+      height: 30px;
       background: #ddd;
       border-radius: 10px;
       margin: 0 auto 10px;
@@ -178,6 +178,9 @@
   </div>
 
   <button onclick="launchBall()">เริ่มหมุน</button>
+  <button onclick="resetGame()">เริ่มเกมใหม่</button>
+
+  <div class="spinner"></div>
 
   <div id="slot-machine">
     <div class="slot" id="slot1">-</div>
@@ -208,7 +211,6 @@
     let roundScore = 0;
     let totalScore = 0;
 
-    // พลังงานแบบหลอดไหลอัตโนมัติ
     let power = 0;
     let powerIncreasing = true;
     let powerInterval;
@@ -216,20 +218,20 @@
     function startPowerBar() {
       powerInterval = setInterval(() => {
         if (powerIncreasing) {
-          power += 0.02;
+          power += 0.01;
           if (power >= 1) {
             power = 1;
             powerIncreasing = false;
           }
         } else {
-          power -= 0.02;
+          power -= 0.01;
           if (power <= 0) {
             power = 0;
             powerIncreasing = true;
           }
         }
         powerBar.style.width = (power * 100) + "%";
-      }, 20);
+      }, 30);
     }
 
     function stopPowerBar() {
@@ -257,7 +259,7 @@
 
       const ball = document.createElement("div");
       ball.className = "ball";
-      ball.style.left = "5px"; // ชิดซ้ายสุดตามราง
+      ball.style.left = "5px";
       ball.style.bottom = "0px";
       board.appendChild(ball);
 
@@ -266,12 +268,11 @@
       let x = 5;
       let y = 0;
 
-      const g = 0.3; // ความเร่งโน้มถ่วง
+      const g = 0.3;
 
-      // ถ้าแรงสุด (power = 1) ให้ลูกบอลเด้งขึ้นสูงสุดแล้วเลี้ยวขวาตามรางบนสุดได้พอดี
       if (power === 1) {
-        vy = 20; // ให้เด้งสูงสุด
-        vx = 5;  // ความเร็วแนวนอนสูงสุด
+        vy = 20;
+        vx = 5;
       } else {
         vx = 4 + Math.random() * 2;
         if (Math.random() < 0.5) vx *= -1;
@@ -288,18 +289,14 @@
         x += vx;
         y += vy;
 
-        // จำกัดลูกบอลให้อยู่ในรางแนวดิ่ง ไม่ให้ออกซ้าย
         if (x < 5) {
           x = 5;
           vx = Math.abs(vx);
         }
 
-        // จำกัดลูกบอลให้อยู่ในบอร์ด
         if (x >= board.clientWidth - 15) vx *= -1;
 
-        // ลูกบอลชนขอบบนของรางสีเขียว (บริเวณหลุมโบนัส)
         if (y >= rewardTop - 15 && x >= rewardLeft && x <= rewardLeft + rewardWidth) {
-          // ให้สล็อตทำงาน
           runSlotMachine();
           clearInterval(interval);
           board.removeChild(ball);
@@ -308,7 +305,6 @@
           return;
         }
 
-        // ลูกบอลตกลงพื้น (y <= 0)
         if (y <= 0) {
           clearInterval(interval);
           board.removeChild(ball);
@@ -329,7 +325,6 @@
       const symbols = ["🍒", "🍋", "🍊", "🔔", "💎"];
       let count = 0;
 
-      // เริ่มแสดงวงล้อหมุน
       const interval = setInterval(() => {
         slot1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
         slot2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
@@ -347,8 +342,6 @@
             slot1.textContent === slot3.textContent
           ) {
             score = 50;
-          } else {
-            score = 0; // ไม่ได้คะแนน
           }
 
           logMessage(`🎰 ได้คะแนน ${score} คะแนน`);
@@ -365,7 +358,7 @@
 
           startPowerBar();
         }
-      }, 100);
+      }, 150);
     }
 
     function resetGame() {
@@ -388,5 +381,6 @@
   </script>
 </body>
 </html>
+
 
 
