@@ -6,11 +6,155 @@
   <title>เว็บไซต์แนะนำตัว</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* สไตล์พื้นหลังเกมแบบดันเจี้ยนกลางคืน */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Press Start 2P', cursive;
+      background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+      overflow: hidden;
+      color: white;
+    }
+
+    /* ดาวตก */
+    .shooting-stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 0 6px white;
+      animation: shooting 2s linear infinite;
+    }
+
+    @keyframes shooting {
+      0% {
+        transform: translateX(0) translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(800px) translateY(800px) scale(0.3);
+        opacity: 0;
+      }
+    }
+
+    /* เมนู */
+    nav {
+      position: relative;
+      z-index: 2;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      text-align: center;
+    }
+
+    nav button {
+      font-size: 1rem;
+      padding: 10px 20px;
+      margin: 8px;
+      border: none;
+      background-color: #ff4081;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    nav button:hover {
+      background-color: #e91e63;
+    }
+
+    /* หน้าหลัก */
+    .page {
+      display: none;
+      padding: 30px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 2;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .logo {
+      font-size: 3rem;
+      color: yellow;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .gear {
+      font-size: 4rem;
+      animation: rotate 4s linear infinite;
+    }
+
+    .game-title {
+      font-size: 2.2rem;
+      color: #00e5ff;
+      text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff;
+    }
+
+    .highlight {
+      color: #ffea00;
+      text-shadow: 0 0 10px #ffea00, 0 0 20px #ffea00;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .intro-text {
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .pachinko-link {
+      text-align: center;
+    }
+
+    .pachinko-link img {
+      width: 200px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .pachinko-link img:hover {
+      transform: scale(1.1);
+    }
+
+    /* Portfolio */
+    #portfolio-page h1 {
+      text-align: center;
+      color: #ffea00;
+    }
+  </style>
 </head>
 <body>
-  <!-- เอฟเฟกต์ดาวตก -->
-  <div class="stars"></div>
-  <div class="shooting-stars"></div>
+
+  <!-- ดาวตกหลายดวง -->
+  <div class="shooting-stars" id="shootingStars"></div>
 
   <!-- เมนู -->
   <nav>
@@ -24,9 +168,8 @@
       <span class="gear">⚙️</span>
       <span class="game-title">MY WORLD <span class="highlight">TT2</span></span>
     </div>
-    <p class="intro-text">ยินดีต้อนรับเข้าสู่โลกของผม ตอนนี้กำลังพัฒนาเว็ปไซด์อยู่ ขออภัยในความไม่สมบูรณ์ครับ</p>
+    <p class="intro-text">ยินดีต้อนรับเข้าสู่โลกของผม ตอนนี้กำลังพัฒนาเว็บไซต์อยู่ ขออภัยในความไม่สมบูรณ์ครับ</p>
 
-    <!-- ปุ่มเข้าเกมปาจิงโกะ -->
     <div class="pachinko-link">
       <a href="pachinko.html">
         <img src="pachinko-machine.png" alt="เข้าเกมปาจิงโกะ" />
@@ -45,7 +188,31 @@
     </p>
   </section>
 
-  <script src="script.js"></script>
+  <script>
+    // สลับหน้า
+    document.getElementById('btn-home').onclick = () => {
+      document.getElementById('home-page').classList.add('active');
+      document.getElementById('portfolio-page').classList.remove('active');
+    };
+
+    document.getElementById('btn-portfolio').onclick = () => {
+      document.getElementById('portfolio-page').classList.add('active');
+      document.getElementById('home-page').classList.remove('active');
+    };
+
+    // สร้างดาวตกแบบสุ่ม 15 ดวง
+    const container = document.getElementById("shootingStars");
+    for (let i = 0; i < 15; i++) {
+      const star = document.createElement("div");
+      star.classList.add("star");
+      star.style.top = Math.random() * 100 + "vh";
+      star.style.left = Math.random() * 100 + "vw";
+      star.style.animationDelay = (Math.random() * 10) + "s";
+      star.style.animationDuration = (1.5 + Math.random()) + "s";
+      container.appendChild(star);
+    }
+  </script>
+
 </body>
 </html>
 
