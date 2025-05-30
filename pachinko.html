@@ -1,373 +1,392 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>เกมปาจิงโกะ</title>
-<style>
-  body {
-    font-family: sans-serif;
-    background-color: #fff4e6;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>เกมปาจิงโกะ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fff4e6;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
 
-  h1 {
-    margin-top: 20px;
-    font-size: 28px;
-  }
+    h1 {
+      margin-top: 20px;
+      font-size: 28px;
+    }
 
-  #board {
-    width: 400px;
-    height: 600px;
-    background-color: #ffe0b2;
-    border: 3px solid orange;
-    margin: 20px auto;
-    position: relative;
-    overflow: hidden;
-    border-radius: 10px;
-  }
+    #board {
+      width: 400px;
+      height: 600px;
+      background-color: #ffe0b2;
+      border: 3px solid orange;
+      margin: 20px auto;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+    }
 
-  .entry-track {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 20px;
-    height: 100%;
-    background-color: #a1887f;
-    z-index: 1;
-    border-radius: 10px;
-  }
+    .entry-track {
+      position: absolute;
+      left: 0px; /* ชิดซ้ายสุด */
+      bottom: 0;
+      width: 20px;
+      height: 100%;
+      background-color: #d7ccc8;
+      z-index: 1;
+      border-radius: 10px;
+    }
 
-  .track-top {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 20px;
-    background-color: #8d6e63;
-    z-index: 2;
-    border-radius: 10px;
-  }
+    .track-top {
+      position: absolute;
+      top: 0;
+      left: 20px; /* เริ่มถัดจากรางแนวดิ่ง */
+      width: 360px;
+      height: 20px;
+      background-color: #8d6e63;
+      z-index: 2;
+      border-radius: 10px;
+    }
 
-  /* รางสีเขียวย้ายลงตรงกลาง */
-  .reward-slot {
-    position: absolute;
-    width: 80px;
-    height: 30px;
-    background-color: green;
-    top: 280px; /* อยู่ตรงกลางแนวตั้ง */
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 5px;
-    z-index: 3;
-    box-shadow: 0 0 10px 3px #00ff00aa;
-  }
+    .reward-slot {
+      position: absolute;
+      width: 60px;
+      height: 20px;
+      background-color: green;
+      top: 280px; /* อยู่ตรงกลางแนวตั้ง */
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 5px;
+      z-index: 3;
+    }
 
-  /* ลูกบอลหมุน (animation) */
-  .ball {
-    width: 20px;
-    height: 20px;
-    background: radial-gradient(circle at 30% 30%, #fff, #bbb);
-    border-radius: 50%;
-    position: absolute;
-    z-index: 4;
-    box-shadow: 0 0 5px 1px #ccc inset;
-    animation: spin 0.5s linear infinite;
-  }
+    .ball {
+      width: 15px;
+      height: 15px;
+      background-color: silver;
+      border-radius: 50%;
+      position: absolute;
+      z-index: 5;
+    }
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+    .spinner {
+      margin: 20px auto;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(orange, #ff9800);
+      border: 5px solid #d84315;
+      position: relative;
+      animation: spin 2s linear infinite;
+      display: none; /* ซ่อนก่อน */
+    }
 
-  /* ตำแหน่งสล็อตตรงกลาง */
-  #slot-machine {
-    position: absolute;
-    top: 500px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    z-index: 5;
-    background: white;
-    padding: 10px 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 8px #888;
-    user-select: none;
-  }
+    .spinner::after {
+      content: '';
+      width: 4px;
+      height: 40px;
+      background: red;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
 
-  .slot {
-    width: 50px;
-    height: 50px;
-    font-size: 30px;
-    background: white;
-    border: 2px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
 
-  #log {
-    max-width: 400px;
-    margin: 10px auto;
-    background: #fffde7;
-    border: 1px solid #ccc;
-    height: 150px;
-    overflow-y: auto;
-    text-align: left;
-    padding: 10px;
-    font-size: 14px;
-  }
+    #slot-machine {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 10px;
+    }
 
-  button {
-    margin: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
-    background: orange;
-    border: none;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+    .slot {
+      width: 50px;
+      height: 50px;
+      font-size: 30px;
+      background: white;
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
 
-  #powerContainer {
-    width: 300px;
-    height: 25px;
-    background: #ddd;
-    margin: 20px auto 10px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: inset 0 0 5px #aaa;
-    position: relative;
-  }
+    #log {
+      max-width: 400px;
+      margin: 10px auto;
+      background: #fffde7;
+      border: 1px solid #ccc;
+      height: 150px;
+      overflow-y: auto;
+      text-align: left;
+      padding: 10px;
+      font-size: 14px;
+    }
 
-  #powerBar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #ff3c00, #ffb200);
-    transition: width 0.05s linear;
-  }
-</style>
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: orange;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #powerBarContainer {
+      width: 300px;
+      height: 20px;
+      background: #ddd;
+      border-radius: 10px;
+      margin: 0 auto 10px;
+      overflow: hidden;
+    }
+
+    #powerBar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, #ff9800, #d84315);
+      transition: width 0.1s linear;
+    }
+
+    #scores {
+      margin-top: 10px;
+      font-size: 18px;
+      user-select: none;
+    }
+  </style>
 </head>
 <body>
-<h1>เกมปาจิงโกะ</h1>
-<div id="board">
-  <div class="entry-track"></div>
-  <div class="track-top"></div>
-  <div class="reward-slot" id="reward-slot"></div>
+  <h1>เกมปาจิงโกะ</h1>
+  <div id="board">
+    <div class="entry-track"></div>
+    <div class="track-top"></div>
+    <div class="reward-slot" id="reward-slot"></div>
+  </div>
+
+  <div id="powerBarContainer">
+    <div id="powerBar"></div>
+  </div>
+
+  <button onclick="launchBall()">เริ่มหมุน</button>
 
   <div id="slot-machine">
     <div class="slot" id="slot1">-</div>
     <div class="slot" id="slot2">-</div>
     <div class="slot" id="slot3">-</div>
   </div>
-</div>
 
-<div id="powerContainer">
-  <div id="powerBar"></div>
-</div>
+  <div id="scores">
+    คะแนนรอบนี้: <span id="roundScore">0</span> &nbsp;&nbsp;&nbsp; คะแนนสะสม: <span id="totalScore">0</span> &nbsp;&nbsp;&nbsp; คะแนนสูงสุด: <span id="highScore">0</span>
+  </div>
 
-<button id="startBtn">เริ่มหมุน</button>
+  <div id="log"></div>
 
-<div style="margin-top: 10px;">
-  คะแนนรอบนี้: <span id="roundScore">0</span> |
-  คะแนนรวมสะสม: <span id="totalScore">0</span> |
-  คะแนนสูงสุด: <span id="highScore">0</span>
-</div>
+  <script>
+    const board = document.getElementById("board");
+    const log = document.getElementById("log");
+    const slot1 = document.getElementById("slot1");
+    const slot2 = document.getElementById("slot2");
+    const slot3 = document.getElementById("slot3");
+    const highScoreDisplay = document.getElementById("highScore");
+    const roundScoreDisplay = document.getElementById("roundScore");
+    const totalScoreDisplay = document.getElementById("totalScore");
+    const powerBar = document.getElementById("powerBar");
 
-<button onclick="resetGame()">เริ่มเกมใหม่</button>
+    let spinCount = 0;
+    const maxSpins = 100;
+    let highScore = 0;
+    let roundScore = 0;
+    let totalScore = 0;
 
-<div id="log"></div>
+    // พลังงานแบบหลอดไหลอัตโนมัติ
+    let power = 0;
+    let powerIncreasing = true;
+    let powerInterval;
 
-<script>
-  const board = document.getElementById("board");
-  const log = document.getElementById("log");
-  const slot1 = document.getElementById("slot1");
-  const slot2 = document.getElementById("slot2");
-  const slot3 = document.getElementById("slot3");
-  const rewardSlot = document.getElementById("reward-slot");
-  const highScoreDisplay = document.getElementById("highScore");
-  const roundScoreDisplay = document.getElementById("roundScore");
-  const totalScoreDisplay = document.getElementById("totalScore");
-  const powerBar = document.getElementById("powerBar");
-  const startBtn = document.getElementById("startBtn");
-
-  let spinCount = 0;
-  const maxSpins = 100;
-  let highScore = 0;
-  let totalScore = 0;
-  let roundScore = 0;
-
-  // พลังงานหมุนแบบอัตโนมัติ (oscillate)
-  let power = 0;
-  let powerDirection = 1;
-  let powerInterval = null;
-  let autoPowerActive = false;
-
-  // เริ่ม oscillate พลังงาน (หลอดพลังงานไหลขึ้น-ลง)
-  function startPowerOscillation() {
-    power = 0;
-    powerDirection = 1;
-    autoPowerActive = true;
-    powerBar.style.width = '0%';
-
-    powerInterval = setInterval(() => {
-      if (!autoPowerActive) return;
-      power += 0.02 * powerDirection;
-      if (power >= 1) powerDirection = -1;
-      if (power <= 0) powerDirection = 1;
-      powerBar.style.width = `${power * 100}%`;
-    }, 20);
-  }
-
-  // หยุด oscillate และคืนค่าพลังงาน ณ ตอนนั้น
-  function stopPowerOscillation() {
-    autoPowerActive = false;
-    clearInterval(powerInterval);
-    return power;
-  }
-
-  function logMessage(msg) {
-    const p = document.createElement("div");
-    p.textContent = msg;
-    log.appendChild(p);
-    log.scrollTop = log.scrollHeight;
-  }
-
-  function launchBall() {
-    if (spinCount >= maxSpins) {
-      logMessage("เกมจบแล้ว! หมุนครบ 100 ครั้งแล้ว");
-      return;
+    function startPowerBar() {
+      powerInterval = setInterval(() => {
+        if (powerIncreasing) {
+          power += 0.02;
+          if (power >= 1) {
+            power = 1;
+            powerIncreasing = false;
+          }
+        } else {
+          power -= 0.02;
+          if (power <= 0) {
+            power = 0;
+            powerIncreasing = true;
+          }
+        }
+        powerBar.style.width = (power * 100) + "%";
+      }, 20);
     }
 
-    spinCount++;
+    function stopPowerBar() {
+      clearInterval(powerInterval);
+    }
 
-    // หยุดการ oscillate และใช้พลังงาน ณ จุดนั้น
-    const usedPower = stopPowerOscillation();
+    startPowerBar();
 
-    logMessage(`หมุนครั้งที่ ${spinCount} ด้วยพลังงาน: ${usedPower.toFixed(2)}`);
+    function logMessage(msg) {
+      const p = document.createElement("div");
+      p.textContent = msg;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+    }
 
-    const ball = document.createElement("div");
-    ball.className = "ball";
-    ball.style.left = "5px";
-    ball.style.bottom = "0px";
-    board.appendChild(ball);
-
-    // ความเร็วแกน x,y ตามพลังงาน
-    let vx = 6 * usedPower;
-    let vy = 20 * usedPower;
-    let x = 5;
-    let y = 0;
-    const g = 0.4;
-
-    const interval = setInterval(() => {
-      vy -= g;
-      x += vx;
-      y += vy;
-
-      // ล็อกลูกบอลไม่ให้ออกทางซ้าย (รางแนวตั้งซ้ายสุด)
-      if (x < 0) {
-        x = 0;
-        vx = Math.abs(vx);
+    function launchBall() {
+      if (spinCount >= maxSpins) {
+        logMessage("เกมจบแล้ว! ครบ 100 ครั้งแล้ว");
+        return;
       }
 
-      // ล็อกลูกบอลไม่ให้ออกทางขวา
-      if (x > board.clientWidth - 20) {
-        x = board.clientWidth - 20;
-        vx = -Math.abs(vx);
+      spinCount++;
+      stopPowerBar();
+      logMessage(`หมุนที่พลังงาน: ${power.toFixed(2)} (${spinCount}/${maxSpins})`);
+
+      const ball = document.createElement("div");
+      ball.className = "ball";
+      ball.style.left = "5px"; // ชิดซ้ายสุดตามราง
+      ball.style.bottom = "0px";
+      board.appendChild(ball);
+
+      let vx = 0;
+      let vy = 0;
+      let x = 5;
+      let y = 0;
+
+      const g = 0.3; // ความเร่งโน้มถ่วง
+
+      // ถ้าแรงสุด (power = 1) ให้ลูกบอลเด้งขึ้นสูงสุดแล้วเลี้ยวขวาตามรางบนสุดได้พอดี
+      if (power === 1) {
+        vy = 20; // ให้เด้งสูงสุด
+        vx = 5;  // ความเร็วแนวนอนสูงสุด
+      } else {
+        vx = 4 + Math.random() * 2;
+        if (Math.random() < 0.5) vx *= -1;
+        vy = 12 * power;
       }
 
-      // ชนเพดาน (บนสุดของบอร์ด)
-      if (y > board.clientHeight - 20) {
-        y = board.clientHeight - 20;
-        vy *= -0.8; // เด้งแรงลดลงนิดหน่อย
-        vx = Math.abs(vx); // ลูกบอลเลี้ยวขวา
-      }
-
-      // ตรวจจับลูกบอลชนรางรางวัล (เขียวตรงกลาง)
+      const rewardSlot = document.getElementById("reward-slot");
       const rewardTop = rewardSlot.offsetTop;
       const rewardLeft = rewardSlot.offsetLeft;
-      const rewardRight = rewardLeft + rewardSlot.offsetWidth;
-      const rewardBottom = rewardTop + rewardSlot.offsetHeight;
+      const rewardWidth = rewardSlot.offsetWidth;
 
-      if (y + 10 >= rewardTop && y <= rewardBottom &&
-          x + 10 >= rewardLeft && x <= rewardRight) {
-        clearInterval(interval);
-        board.removeChild(ball);
-        runSlotMachine();
-        return;
-      }
+      const interval = setInterval(() => {
+        vy -= g;
+        x += vx;
+        y += vy;
 
-      // ลูกบอลตกพื้น (ต่ำกว่า 0)
-      if (y < 0) {
-        clearInterval(interval);
-        board.removeChild(ball);
-        logMessage("❌ ลูกบอลพลาดเป้า!");
-        roundScoreDisplay.textContent = "0";
-        return;
-      }
-
-      ball.style.left = `${x}px`;
-      ball.style.bottom = `${y}px`;
-    }, 20);
-  }
-
-  function runSlotMachine() {
-    const symbols = ["🍒", "🍋", "🍊", "🔔", "💎"];
-    let count = 0;
-
-    const interval = setInterval(() => {
-      slot1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-      slot2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-      slot3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-      count++;
-      if (count > 20) {
-        clearInterval(interval);
-
-        let score = 50;
-        if (slot1.textContent === slot2.textContent && slot2.textContent === slot3.textContent) {
-          score = 100;
+        // จำกัดลูกบอลให้อยู่ในรางแนวดิ่ง ไม่ให้ออกซ้าย
+        if (x < 5) {
+          x = 5;
+          vx = Math.abs(vx);
         }
 
-        logMessage(`🎰 ได้คะแนน ${score} คะแนน`);
-        roundScore = score;
-        roundScoreDisplay.textContent = roundScore;
+        // จำกัดลูกบอลให้อยู่ในบอร์ด
+        if (x >= board.clientWidth - 15) vx *= -1;
 
-        totalScore += score;
-        totalScoreDisplay.textContent = totalScore;
-
-        if (score > highScore) {
-          highScore = score;
-          highScoreDisplay.textContent = highScore;
+        // ลูกบอลชนขอบบนของรางสีเขียว (บริเวณหลุมโบนัส)
+        if (y >= rewardTop - 15 && x >= rewardLeft && x <= rewardLeft + rewardWidth) {
+          // ให้สล็อตทำงาน
+          runSlotMachine();
+          clearInterval(interval);
+          board.removeChild(ball);
+          roundScoreDisplay.textContent = roundScore;
+          totalScoreDisplay.textContent = totalScore;
+          return;
         }
-      }
-    }, 100);
-  }
 
-  function resetGame() {
-    spinCount = 0;
-    totalScore = 0;
-    roundScore = 0;
-    log.innerHTML = "";
-    highScore = 0;
-    roundScoreDisplay.textContent = "0";
-    totalScoreDisplay.textContent = "0";
-    highScoreDisplay.textContent = "0";
-    slot1.textContent = "-";
-    slot2.textContent = "-";
-    slot3.textContent = "-";
-    powerBar.style.width = '0%';
-    logMessage("เริ่มเกมใหม่แล้ว!");
-  }
+        // ลูกบอลตกลงพื้น (y <= 0)
+        if (y <= 0) {
+          clearInterval(interval);
+          board.removeChild(ball);
+          logMessage("❌ ลูกบอลพลาดเป้า!");
+          roundScore = 0;
+          roundScoreDisplay.textContent = roundScore;
+          totalScoreDisplay.textContent = totalScore;
+          startPowerBar();
+          return;
+        }
 
-  let waitingForPowerStop = false;
+        ball.style.left = `${x}px`;
+        ball.style.bottom = `${y}px`;
+      }, 20);
+    }
 
-  startBtn.addEventListener("click", () => {
-    if (spinCount >= maxSpins) {
-      logMessage("เกม
+    function runSlotMachine() {
+      const symbols = ["🍒", "🍋", "🍊", "🔔", "💎"];
+      let count = 0;
 
+      // เริ่มแสดงวงล้อหมุน
+      const interval = setInterval(() => {
+        slot1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        slot2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        slot3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        count++;
+        if (count > 20) {
+          clearInterval(interval);
+
+          let score = 0;
+          if (slot1.textContent === slot2.textContent && slot2.textContent === slot3.textContent) {
+            score = 300;
+          } else if (
+            slot1.textContent === slot2.textContent ||
+            slot2.textContent === slot3.textContent ||
+            slot1.textContent === slot3.textContent
+          ) {
+            score = 50;
+          } else {
+            score = 0; // ไม่ได้คะแนน
+          }
+
+          logMessage(`🎰 ได้คะแนน ${score} คะแนน`);
+          roundScore = score;
+          totalScore += score;
+
+          roundScoreDisplay.textContent = roundScore;
+          totalScoreDisplay.textContent = totalScore;
+
+          if (score > highScore) {
+            highScore = score;
+            highScoreDisplay.textContent = highScore;
+          }
+
+          startPowerBar();
+        }
+      }, 100);
+    }
+
+    function resetGame() {
+      spinCount = 0;
+      log.innerHTML = "";
+      highScore = 0;
+      roundScore = 0;
+      totalScore = 0;
+      highScoreDisplay.textContent = "0";
+      roundScoreDisplay.textContent = "0";
+      totalScoreDisplay.textContent = "0";
+      slot1.textContent = "-";
+      slot2.textContent = "-";
+      slot3.textContent = "-";
+      logMessage("เริ่มเกมใหม่แล้ว!");
+      startPowerBar();
+    }
+
+    resetGame();
+  </script>
+</body>
+</html>
 
 
