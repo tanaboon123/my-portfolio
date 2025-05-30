@@ -56,7 +56,7 @@
       width: 60px;
       height: 20px;
       background-color: green;
-      top: 0;
+      top: 280px;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 5px;
@@ -75,20 +75,26 @@
     #slot-machine {
       display: flex;
       justify-content: center;
-      margin: 20px auto;
-      gap: 10px;
+      position: absolute;
+      top: 250px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
     }
 
     .slot {
       width: 50px;
       height: 50px;
-      font-size: 30px;
       background: white;
       border: 2px solid #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      user-select: none;
+    }
+
+    .slot img {
+      max-width: 100%;
+      max-height: 100%;
     }
 
     #log {
@@ -142,12 +148,11 @@
     <div class="entry-track"></div>
     <div class="track-top"></div>
     <div class="reward-slot" id="reward-slot"></div>
-  </div>
-
-  <div id="slot-machine">
-    <div class="slot" id="slot1">-</div>
-    <div class="slot" id="slot2">-</div>
-    <div class="slot" id="slot3">-</div>
+    <div id="slot-machine">
+      <div class="slot" id="slot1"><img src="https://via.placeholder.com/50" /></div>
+      <div class="slot" id="slot2"><img src="https://via.placeholder.com/50" /></div>
+      <div class="slot" id="slot3"><img src="https://via.placeholder.com/50" /></div>
+    </div>
   </div>
 
   <div id="powerBarContainer">
@@ -168,6 +173,7 @@
   <div id="log"></div>
 
   <script>
+    const slotImgs = ["🍒", "🍋", "🍊", "🔔", "💎"];
     const slot1 = document.getElementById("slot1");
     const slot2 = document.getElementById("slot2");
     const slot3 = document.getElementById("slot3");
@@ -190,23 +196,14 @@
 
     function startPowerBar() {
       if (powerInterval) clearInterval(powerInterval);
+      power = 0;
       powerIncreasing = true;
       powerInterval = setInterval(() => {
-        if (powerIncreasing) {
-          power += 0.01;
-          if (power >= 1) {
-            power = 1;
-            powerIncreasing = false;
-          }
-        } else {
-          power -= 0.01;
-          if (power <= 0) {
-            power = 0;
-            powerIncreasing = true;
-          }
-        }
+        power += powerIncreasing ? 0.01 : -0.01;
+        if (power >= 1) { power = 1; powerIncreasing = false; }
+        if (power <= 0) { power = 0; powerIncreasing = true; }
         powerBar.style.width = (power * 100) + "%";
-      }, 15);
+      }, 30);
     }
 
     function stopPowerBar() {
@@ -234,11 +231,9 @@
       board.appendChild(ball);
 
       let x = 5, y = 0;
-      let vx = power * 6;
-      let vy = power * 28;
-      if (Math.random() < 0.5) vx *= -1;
-
-      const g = 0.35;
+      let vx = power * 5 * (Math.random() < 0.5 ? -1 : 1);
+      let vy = power * 30;
+      const g = 0.5;
 
       const interval = setInterval(() => {
         vy -= g;
@@ -247,20 +242,19 @@
 
         if (x < 5) { x = 5; vx = Math.abs(vx); }
         if (x > board.clientWidth - 15) vx *= -1;
-        if (y >= board.clientHeight - 15) { y = board.clientHeight - 15; vy *= -0.8; }
 
-        const rewardTop = rewardSlot.offsetTop + rewardSlot.offsetHeight;
+        const rewardTop = rewardSlot.offsetTop;
         const rewardLeft = rewardSlot.offsetLeft;
-        const rewardRight = rewardLeft + rewardSlot.offsetWidth;
+        const rewardWidth = rewardSlot.offsetWidth;
 
-        if (y >= rewardTop && y <= rewardTop + 5 && x >= rewardLeft && x <= rewardRight) {
+        if (y >= rewardTop - 15 && y <= rewardTop + 20 && x >= rewardLeft && x <= rewardLeft + rewardWidth) {
           clearInterval(interval);
           board.removeChild(ball);
           runSlotMachine();
           return;
         }
 
-        if (y <= 0) {
+        if (y <= 0 || y > board.clientHeight) {
           clearInterval(interval);
           board.removeChild(ball);
           logMessage("❌ ลูกบอลพลาดเป้า!");
@@ -276,19 +270,22 @@
     }
 
     function runSlotMachine() {
-      const symbols = ["🍒", "🍋", "🍊", "🔔", "💎"];
       let count = 0;
       const interval = setInterval(() => {
-        slot1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-        slot2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-        slot3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        slot1.innerHTML = slot2.innerHTML = slot3.innerHTML = "<img src='https://via.placeholder.com/50' />";
         count++;
         if (count > 20) {
           clearInterval(interval);
-          let s1 = slot1.textContent, s2 = slot2.textContent, s3 = slot3.textContent;
+          const results = [
+            slotImgs[Math.floor(Math.random() * slotImgs.length)],
+            slotImgs[Math.floor(Math.random() * slotImgs.length)],
+            slotImgs[Math.floor(Math.random() * slotImgs.length)]
+          ];
+          [slot1, slot2, slot3].forEach((slot, i) => slot.textContent = results[i]);
+
           let score = 0;
-          if (s1 === s2 && s2 === s3) score = 300;
-          else if (s1 === s2 || s2 === s3 || s1 === s3) score = 50;
+          if (results[0] === results[1] && results[1] === results[2]) score = 300;
+          else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) score = 50;
           roundScore = score;
           totalScore += score;
           if (score > highScore) highScore = score;
@@ -319,5 +316,4 @@
   </script>
 </body>
 </html>
-
 
