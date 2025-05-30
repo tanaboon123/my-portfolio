@@ -56,7 +56,7 @@
       width: 60px;
       height: 20px;
       background-color: green;
-      top: 280px;
+      top: 0;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 5px;
@@ -190,7 +190,6 @@
 
     function startPowerBar() {
       if (powerInterval) clearInterval(powerInterval);
-      power = 0;
       powerIncreasing = true;
       powerInterval = setInterval(() => {
         if (powerIncreasing) {
@@ -207,7 +206,7 @@
           }
         }
         powerBar.style.width = (power * 100) + "%";
-      }, 30);
+      }, 15);
     }
 
     function stopPowerBar() {
@@ -235,11 +234,11 @@
       board.appendChild(ball);
 
       let x = 5, y = 0;
-      let vx = power * 5;
-      let vy = power * 25;
+      let vx = power * 6;
+      let vy = power * 28;
       if (Math.random() < 0.5) vx *= -1;
 
-      const g = 0.3;
+      const g = 0.35;
 
       const interval = setInterval(() => {
         vy -= g;
@@ -248,12 +247,13 @@
 
         if (x < 5) { x = 5; vx = Math.abs(vx); }
         if (x > board.clientWidth - 15) vx *= -1;
+        if (y >= board.clientHeight - 15) { y = board.clientHeight - 15; vy *= -0.8; }
 
-        const rewardTop = rewardSlot.offsetTop;
+        const rewardTop = rewardSlot.offsetTop + rewardSlot.offsetHeight;
         const rewardLeft = rewardSlot.offsetLeft;
-        const rewardWidth = rewardSlot.offsetWidth;
+        const rewardRight = rewardLeft + rewardSlot.offsetWidth;
 
-        if (y >= rewardTop - 15 && x >= rewardLeft && x <= rewardLeft + rewardWidth) {
+        if (y >= rewardTop && y <= rewardTop + 5 && x >= rewardLeft && x <= rewardRight) {
           clearInterval(interval);
           board.removeChild(ball);
           runSlotMachine();
@@ -289,11 +289,10 @@
           let score = 0;
           if (s1 === s2 && s2 === s3) score = 300;
           else if (s1 === s2 || s2 === s3 || s1 === s3) score = 50;
-          else score = 0;
           roundScore = score;
           totalScore += score;
-          logMessage(`🎰 ได้คะแนน ${score} คะแนน`);
           if (score > highScore) highScore = score;
+          logMessage(`🎰 ได้คะแนน ${score} คะแนน`);
           updateScores();
           startPowerBar();
         }
