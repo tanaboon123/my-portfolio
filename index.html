@@ -122,14 +122,15 @@
 
     .intro-container {
       display: flex;
+      justify-content: center;
       align-items: center;
       gap: 30px;
       flex-wrap: wrap;
+      flex-direction: column;
     }
 
     .intro-text {
-      font-size: 1.2rem;
-      flex: 1;
+      font-size: 1rem;
       text-align: center;
       text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffff, 0 0 30px #00ffff;
       color: #ffffff;
@@ -137,7 +138,7 @@
     }
 
     .pachinko-link {
-      text-align: left;
+      text-align: center;
     }
 
     .pachinko-link img {
@@ -150,7 +151,8 @@
       transform: scale(1.1);
     }
 
-    #portfolio-page h1 {
+    #portfolio-page h1,
+    #youtube-page h1 {
       text-align: center;
       color: #ffea00;
     }
@@ -158,10 +160,8 @@
 </head>
 <body>
 
-  <!-- ดาวตกหลายดวง -->
   <div class="shooting-stars" id="shootingStars"></div>
 
-  <!-- เมนู -->
   <nav>
     <button id="btn-home">หน้าแรก</button>
     <button id="btn-portfolio">Portfolio</button>
@@ -175,7 +175,6 @@
     </div>
 
     <div class="intro-container">
-      <!-- รูปอยู่ซ้าย -->
       <div class="pachinko-link">
         <a href="pachinko.html">
           <img src="pachinko-machine.png" alt="เข้าเกมปาจิงโกะ" />
@@ -183,8 +182,16 @@
         <p>🎰 คลิกที่รูปเพื่อเข้าเกมปาจิงโกะ 🎮</p>
       </div>
 
-      <!-- ข้อความใหญ่และเรืองแสง -->
-      <p class="intro-text">ยินดีต้อนรับเข้าสู่โลกของผม ตอนนี้กำลังพัฒนาเว็บไซต์อยู่ ขออภัยในความไม่สมบูรณ์ครับ</p>
+      <div class="pachinko-link">
+        <a href="#" id="youtube-link">
+          <img src="youtube.png" alt="ช่อง YouTube" />
+        </a>
+        <p>📺 คลิกเพื่อดูช่อง YouTube ของผม</p>
+      </div>
+
+      <p class="intro-text">
+        ยินดีต้อนรับเข้าสู่โลกของผม ตอนนี้กำลังพัฒนาเว็บไซต์อยู่ ขออภัยในความไม่สมบูรณ์ครับ
+      </p>
     </div>
   </section>
 
@@ -198,19 +205,34 @@
     </p>
   </section>
 
+  <!-- หน้า YouTube -->
+  <section id="youtube-page" class="page">
+    <h1>ช่อง YouTube ของผม</h1>
+    <div style="text-align: center;">
+      <img src="mychannel.png" alt="ช่องของฉัน" style="max-width: 300px; width: 100%; border-radius: 15px;" />
+      <p style="margin-top: 20px;">
+        <a href="https://www.youtube.com/channel/UCM07m7YU8jPLx0VYIZUbjyg" target="_blank"
+          style="color: #00e5ff; text-shadow: 0 0 5px #00e5ff;">🔗 เยี่ยมชมช่อง YouTube</a>
+      </p>
+    </div>
+  </section>
+
   <script>
-    // สลับหน้า
-    document.getElementById('btn-home').onclick = () => {
-      document.getElementById('home-page').classList.add('active');
-      document.getElementById('portfolio-page').classList.remove('active');
+    const pages = ["home-page", "portfolio-page", "youtube-page"];
+
+    function showPage(id) {
+      pages.forEach(p => document.getElementById(p).classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    document.getElementById('btn-home').onclick = () => showPage("home-page");
+    document.getElementById('btn-portfolio').onclick = () => showPage("portfolio-page");
+    document.getElementById('youtube-link').onclick = (e) => {
+      e.preventDefault();
+      showPage("youtube-page");
     };
 
-    document.getElementById('btn-portfolio').onclick = () => {
-      document.getElementById('portfolio-page').classList.add('active');
-      document.getElementById('home-page').classList.remove('active');
-    };
-
-    // สร้างดาวตกแบบสุ่ม
+    // ดาวตก
     const container = document.getElementById("shootingStars");
     for (let i = 0; i < 15; i++) {
       const star = document.createElement("div");
@@ -225,3 +247,4 @@
 
 </body>
 </html>
+
